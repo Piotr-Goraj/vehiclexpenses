@@ -170,6 +170,7 @@ export default function NewVehicleModal({
         db,
         name,
         model,
+        'NULL',
         buyDate,
         parseFloat(buyPrice),
         isSold,

@@ -8,6 +8,7 @@ export const createTables = async (db: SQLiteDatabase) => {
         "id"	INTEGER NOT NULL UNIQUE,
         "name"	TEXT NOT NULL,
         "model"	TEXT,
+        "image"	BLOB,
         "buy_date"	TEXT NOT NULL,
         "buy_price"	REAL NOT NULL,
         "is_sold"	INTEGER NOT NULL,
@@ -163,6 +164,7 @@ export const inputNewVehicle = async (
   db: SQLiteDatabase,
   name: string,
   model: string,
+  image: string | null,
   buyDate: string,
   buyPrice: number,
   isSold: 0 | 1,
@@ -175,10 +177,11 @@ export const inputNewVehicle = async (
     db.transaction(
       (txn) => {
         txn.executeSql(
-          `INSERT INTO vehicles (name, model, buy_date, buy_price, is_sold, sold_date, sold_price, mileage) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+          `INSERT INTO vehicles (name, model, image, buy_date, buy_price, is_sold, sold_date, sold_price, mileage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
           [
             name,
             model,
+            image,
             buyDate,
             buyPrice,
             isSold,
@@ -220,6 +223,45 @@ export const getAllVehicles = async (db: SQLiteDatabase) => {
             vehicles.push(res.rows.item(i));
           }
           resolve(vehicles);
+        },
+        (error) => {
+          reject(error);
+          return true;
+        }
+      );
+    });
+  });
+};
+
+export interface VehicleProps {
+  id: number;
+  name: string;
+  model: string;
+  image?: string;
+  buy_date: string;
+  buy_price: number;
+  is_sold: 0 | 1;
+  sold_date?: string;
+  sold_price?: number;
+  mileage: number;
+}
+
+export const getVehicleById = async (
+  db: SQLiteDatabase,
+  id: number
+): Promise<VehicleProps> => {
+  return new Promise((resolve, reject) => {
+    db.transaction((txn) => {
+      txn.executeSql(
+        `SELECT * FROM vehicles WHERE id = ?;`,
+        [id],
+        (sqlTxn, res) => {
+          if (res.rows.length > 0) {
+            const vehicle = res.rows.item(0);
+            resolve(vehicle as VehicleProps); // Rzutowanie wyniku na typ Vehicle
+          } else {
+            reject(new Error('Nie znaleziono pojazdu o podanym id'));
+          }
         },
         (error) => {
           reject(error);

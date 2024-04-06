@@ -1,31 +1,26 @@
-import { StyleSheet, View, Text } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import VehiclesScreen from '../../screens/Vehicles/VehiclesScreen';
 import VehicleDetailsScreen from '../../screens/Vehicles/VehicleDetailsScreen';
 
-import screen from '../../utils/screens-names';
+import { RootStackParamList, VehiclesNavProps } from '../../utils/types';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export default function VehiclesNavigator() {
+export default function VehiclesNavigator({}: VehiclesNavProps) {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName='VehiclesList'>
       <Stack.Screen
-        name={screen.VehiclesList}
+        name={'VehiclesList'}
         component={VehiclesScreen}
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name={screen.VehicleDetails}
+        name={'VehicleDetails'}
         component={VehicleDetailsScreen}
       />
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {},
-});

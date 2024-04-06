@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
-import AddVehicleModalBtn from '../../components/ui/buttons/AddVehicleModalBtn';
 import { getAllVehicles } from '../../store/Database/queriesSQLite';
-import NewVehicleModal from '../../components/modals/NewVehicleModal';
+
+import { VehiclesList } from '../../utils/types';
 
 import useOpenDatabase from '../../hooks/useOpenDatabase';
-import VehicleBtn from '../../components/Vehicles/VehicleBtn';
 
-import screen from '../../utils/screens-names';
+import VehicleBtn from '../../components/Vehicles/VehicleBtn';
+import NewVehicleModal from '../../components/modals/NewVehicleModal';
+import AddVehicleModalBtn from '../../components/ui/buttons/AddVehicleModalBtn';
 
 interface Vehicle {
   id: number;
   name: string;
   model: string;
+  image: string;
   buyDate: string;
   buyPrice: number;
   isSold: 0 | 1;
@@ -25,9 +26,7 @@ interface Vehicle {
 
 const db = useOpenDatabase({ dbName: 'vehiclexpenses.sqlite' });
 
-export default function VehiclesScreen() {
-  const navigation = useNavigation();
-
+export default function VehiclesScreen({ navigation }: VehiclesList) {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
@@ -56,7 +55,9 @@ export default function VehiclesScreen() {
                 key={vehicle.id}
                 details={vehicle}
                 onPress={() =>
-                  navigation.navigate(screen.VehicleDetails, { vehicle })
+                  navigation.navigate('VehicleDetails', {
+                    vehicleId: vehicle.id,
+                  })
                 }
               />
             ))}

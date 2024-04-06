@@ -1,21 +1,21 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AntDesign, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 
-import screen from '../../utils/screens-names';
-
 import VehiclesNavigator from './VehiclesNavigator';
 
 import GasScreen from '../../screens/GasScreen';
 import SummariseScreen from '../../screens/SummariseScreen';
 import SettingsScreen from '../../screens/SettingsScreen';
 
-const Tab = createBottomTabNavigator();
+import { RootStackParamList } from '../../utils/types';
+
+const Tab = createBottomTabNavigator<RootStackParamList>();
 
 export default function BottomTabNavigator() {
   return (
-    <Tab.Navigator initialRouteName={screen.Vehicles}>
+    <Tab.Navigator initialRouteName={'VehiclesNav'}>
       <Tab.Screen
-        name={screen.Vehicles}
+        name={'VehiclesNav'}
         component={VehiclesNavigator}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -25,10 +25,11 @@ export default function BottomTabNavigator() {
               color={color}
             />
           ),
+          title: 'Vehicle',
         }}
       />
       <Tab.Screen
-        name={screen.Gas}
+        name={'Gas'}
         component={GasScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -41,7 +42,7 @@ export default function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name={screen.Summarise}
+        name={'Summarise'}
         component={SummariseScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -54,7 +55,7 @@ export default function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name={screen.Settings}
+        name={'Settings'}
         component={SettingsScreen}
         options={{
           tabBarIcon: ({ color, size }) => (

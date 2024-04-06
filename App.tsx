@@ -20,7 +20,7 @@ export default function App() {
   useEffect(() => {
     const fetchData = async () => {
       const dbEmpty = await checkTables(db);
-      checkTablesConsoleLog(db);
+      // checkTablesConsoleLog(db);
       if (dbEmpty === 'EMPTY') {
         createTables(db);
       }
