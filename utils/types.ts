@@ -6,7 +6,11 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 export type RootStackParamList = {
   VehiclesNav: undefined;
   VehiclesList: undefined;
-  VehicleDetails: { vehicleId: number };
+  VehicleDetails: {
+    vehicleId: number;
+    vehicleName: string;
+    vehicleModel: string;
+  };
 
   Gas: undefined;
   Summarise: undefined;
@@ -104,4 +108,6 @@ export interface VehicleProps {
   sold_date?: string;
   sold_price?: number;
   mileage: number;
+  gas_id?: number[];
+  expenses?: number[];
 }

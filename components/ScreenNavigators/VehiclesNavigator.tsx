@@ -20,6 +20,13 @@ export default function VehiclesNavigator({}: VehiclesNavProps) {
       <Stack.Screen
         name={'VehicleDetails'}
         component={VehicleDetailsScreen}
+        options={({ route }) => {
+          const { vehicleName, vehicleModel } = route.params;
+
+          return {
+            title: `${vehicleName} ${vehicleModel}`,
+          };
+        }}
       />
     </Stack.Navigator>
   );

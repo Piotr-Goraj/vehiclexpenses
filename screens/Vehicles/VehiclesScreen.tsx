@@ -45,6 +45,8 @@ export default function VehiclesScreen({ navigation }: VehiclesList) {
                 onPress={() =>
                   navigation.navigate('VehicleDetails', {
                     vehicleId: vehicle.id,
+                    vehicleName: vehicle.name,
+                    vehicleModel: vehicle.model,
                   })
                 }
               />

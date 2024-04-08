@@ -1,11 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import { VehicleDetailsProps, VehicleProps } from '../../utils/types';
 
-export default function VehicleDetailsScreen({ route }: VehicleDetailsProps) {
+export default function VehicleDetailsScreen({
+  route,
+  navigation,
+}: VehicleDetailsProps) {
   const { vehicleId } = route.params;
+  const tabNav = navigation.getParent();
+
+  useFocusEffect(
+    useCallback(() => {
+      tabNav?.setOptions({ headerShown: false });
+      return () => {
+        tabNav?.setOptions({ headerShown: true });
+      };
+    }, [])
+  );
 
   const [vehicleDetails, setVehicleDetails] = useState<VehicleProps>({
     id: 0,
