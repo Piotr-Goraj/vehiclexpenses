@@ -3,21 +3,18 @@ import {
   StyleSheet,
   Text,
   Modal,
-  TouchableOpacity,
   Animated,
   ScrollView,
   View,
 } from 'react-native';
 
-import { inputNewVehicle } from '../../store/Database/queriesSQLite';
+import { useSQLiteContext } from 'expo-sqlite/next';
+
+import { InputNewVehicleProps } from '../../utils/types';
 
 import PrimaryInput from '../ui/inputs/PrimaryInput';
 import DateSelect from '../ui/inputs/DateSelect';
 import PrimaryButton from '../ui/buttons/PrimaryButton';
-
-import useOpenDatabase from '../../hooks/useOpenDatabase';
-
-const db = useOpenDatabase({ dbName: 'vehiclexpenses.sqlite' });
 
 interface NewVehicleModalProps {
   isModalVisible: boolean;
@@ -48,16 +45,19 @@ type FormAction =
 const formReducer = (state: FormState, action: FormAction) => {
   switch (action.type) {
     case 'SET_VEHICLE_NAME':
+      const trimmedValue = action.value.trim();
+
       return {
         ...state,
-        vehicleNameValue: action.value,
-        vehicleNameValid: action.value.length >= 3,
+        vehicleNameValue: action.value.trim(),
+        vehicleNameValid: trimmedValue.length >= 3,
       };
     case 'SET_VEHICLE_MODEL':
+      const trimmedModel = action.value.trim();
       return {
         ...state,
-        vehicleModelValue: action.value,
-        vehicleModelValid: action.value.length > 0,
+        vehicleModelValue: action.value.trim(),
+        vehicleModelValid: trimmedModel.length > 0,
       };
     case 'SET_BUY_DATE':
       return {
@@ -68,13 +68,13 @@ const formReducer = (state: FormState, action: FormAction) => {
     case 'SET_BUY_PRICE':
       return {
         ...state,
-        buyPriceValue: action.value,
+        buyPriceValue: action.value.trim(),
         buyPriceValid: parseFloat(action.value) >= 0,
       };
     case 'SET_MILEAGE':
       return {
         ...state,
-        mileageValue: action.value,
+        mileageValue: action.value.trim(),
         mileageValid: parseFloat(action.value) >= 0,
       };
     case 'RESET_STATE':
@@ -85,9 +85,9 @@ const formReducer = (state: FormState, action: FormAction) => {
         vehicleModelValid: null,
         buyDateValue: '',
         buyDateValid: null,
-        buyPriceValue: '0',
+        buyPriceValue: '',
         buyPriceValid: null,
-        mileageValue: '0',
+        mileageValue: '',
         mileageValid: null,
       };
     default:
@@ -106,15 +106,14 @@ export default function NewVehicleModal({
     vehicleModelValid: null,
     buyDateValue: '',
     buyDateValid: null,
-    buyPriceValue: '0',
+    buyPriceValue: '',
     buyPriceValid: null,
-    mileageValue: '0',
+    mileageValue: '',
     mileageValid: null,
   });
 
+  const db = useSQLiteContext();
   const [isVisible, setIsVisible] = useState<boolean>(false);
-
-  const translateY = new Animated.Value(500);
 
   useEffect(() => {
     setIsVisible(isModalVisible);
@@ -129,30 +128,6 @@ export default function NewVehicleModal({
     onModal(false);
   };
 
-  const showAnimation = () => {
-    Animated.timing(translateY, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const hideAnimation = () => {
-    Animated.timing(translateY, {
-      toValue: 500,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => closeModal());
-  };
-
-  useEffect(() => {
-    if (isVisible) {
-      showAnimation();
-    } else {
-      hideAnimation();
-    }
-  }, [isVisible]);
-
   const saveVehicle = async () => {
     const {
       vehicleNameValue: name,
@@ -161,29 +136,40 @@ export default function NewVehicleModal({
       buyPriceValue: buyPrice,
       mileageValue: mileage,
     } = formState;
+
     const isSold = 0;
 
-    // console.log(name, model, buyDate, buyPrice, isSold, mileage);
+    const isFormValid: boolean | null =
+      formState.vehicleNameValid &&
+      formState.vehicleModelValid &&
+      formState.buyPriceValid &&
+      formState.mileageValid;
 
-    try {
-      const result = await inputNewVehicle(
-        db,
-        name,
-        model,
-        'NULL',
-        buyDate,
-        parseFloat(buyPrice),
-        isSold,
-        'NULL',
-        'NULL',
-        parseFloat(mileage)
-      );
+    // console.log(
+    //   `:${name}:`,
+    //   `:${model}:`,
+    //   `:${mileage}:`,
+    //   `:${buyDate}:`,
+    //   `:${buyPrice}:`
+    // );
 
-      if (result.isVehicleAdded) {
-        hideAnimation();
-      }
-    } catch (error) {
-      console.log('Error:', error);
+    if (!isFormValid) {
+      dispatchForm({ type: 'SET_VEHICLE_NAME', value: name });
+      dispatchForm({ type: 'SET_VEHICLE_MODEL', value: model });
+      dispatchForm({ type: 'SET_BUY_PRICE', value: buyPrice });
+      dispatchForm({ type: 'SET_MILEAGE', value: mileage });
+
+      console.log(name, model, buyPrice, mileage);
+    } else {
+      db.withTransactionAsync(async () => {
+        await db
+          .runAsync(
+            `INSERT INTO vehicles (name, model, buy_date, buy_price, is_sold, mileage) VALUES (?, ?, ?, ?, ?, ?);`,
+            [name, model, buyDate, buyPrice, isSold, mileage]
+          )
+          .then(() => closeModal())
+          .catch((error) => console.error(error));
+      });
     }
   };
 
@@ -193,13 +179,8 @@ export default function NewVehicleModal({
       transparent
       animationType='fade'
     >
-      <TouchableOpacity
-        style={styles.modalBackground}
-        activeOpacity={1}
-      >
-        <Animated.View
-          style={[styles.modalContainer, { transform: [{ translateY }] }]}
-        >
+      <View style={styles.modalBackground}>
+        <View style={styles.modalContainer}>
           <ScrollView style={styles.contentContainerRoot}>
             <View style={styles.contentContainer}>
               <Text style={styles.titleText}>NEW VEHICLE</Text>
@@ -268,7 +249,7 @@ export default function NewVehicleModal({
           <View style={styles.buttonContainer}>
             <PrimaryButton
               title='Close'
-              onPress={hideAnimation}
+              onPress={closeModal}
             />
             <PrimaryButton
               title='Confirm'
@@ -276,8 +257,8 @@ export default function NewVehicleModal({
               btnColor='green'
             />
           </View>
-        </Animated.View>
-      </TouchableOpacity>
+        </View>
+      </View>
     </Modal>
   );
 }

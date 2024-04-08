@@ -1,44 +1,32 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import { useSQLiteContext } from 'expo-sqlite/next';
 
-import { getAllVehicles } from '../../store/Database/queriesSQLite';
-
-import { VehiclesList } from '../../utils/types';
-
-import useOpenDatabase from '../../hooks/useOpenDatabase';
+import { VehiclesList, VehicleProps } from '../../utils/types';
 
 import VehicleBtn from '../../components/Vehicles/VehicleBtn';
 import NewVehicleModal from '../../components/modals/NewVehicleModal';
 import AddVehicleModalBtn from '../../components/ui/buttons/AddVehicleModalBtn';
 
-interface Vehicle {
-  id: number;
-  name: string;
-  model: string;
-  image: string;
-  buyDate: string;
-  buyPrice: number;
-  isSold: 0 | 1;
-  soldDate: string | 'NULL';
-  soldPrice: number | 'NULL';
-  mileage: number;
-}
-
-const db = useOpenDatabase({ dbName: 'vehiclexpenses.sqlite' });
-
 export default function VehiclesScreen({ navigation }: VehiclesList) {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleProps[]>([]);
+
+  const db = useSQLiteContext();
+
+  async function getAllVehicles() {
+    const result = await db.getAllAsync<VehicleProps>(
+      `SELECT * FROM vehicles ORDER BY buy_date DESC;`
+    );
+    console.log(result);
+    setVehicles(result);
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      const vehiclesTab = await getAllVehicles(db);
-      setVehicles(vehiclesTab as Vehicle[]);
-      console.log(vehiclesTab);
-    };
-
-    fetchData();
-  }, [isModalVisible]);
+    db.withTransactionAsync(async () => {
+      await getAllVehicles();
+    });
+  }, [isModalVisible, db]);
 
   return (
     <>
@@ -82,9 +70,11 @@ const styles = StyleSheet.create({
   containerList: {
     width: '100%',
     alignItems: 'center',
+
+    marginTop: 16,
   },
   container: {
-    width: 288,
+    width: 360,
 
     flexDirection: 'row',
     flexWrap: 'wrap',

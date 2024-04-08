@@ -34,8 +34,8 @@ export default function VehicleBtn({ details, onPress }: VehicleBtnProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: 128,
-    height: 128,
+    width: 164,
+    height: 164,
     margin: 8,
 
     padding: 10,

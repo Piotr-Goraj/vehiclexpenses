@@ -35,8 +35,8 @@ const AddVehicleModalBtn: React.FC<AddVehicleModalBtnProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    width: 128,
-    height: 128,
+    width: 164,
+    height: 164,
     margin: 8,
 
     padding: 10,

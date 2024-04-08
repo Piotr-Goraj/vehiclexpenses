@@ -1,18 +1,12 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useSQLiteContext } from 'expo-sqlite/next';
 
-import { VehicleDetailsProps } from '../../utils/types';
-import {
-  VehicleProps,
-  getVehicleById,
-} from '../../store/Database/queriesSQLite';
-
-import useOpenDatabase from '../../hooks/useOpenDatabase';
-
-const db = useOpenDatabase({ dbName: 'vehiclexpenses.sqlite' });
+import { VehicleDetailsProps, VehicleProps } from '../../utils/types';
 
 export default function VehicleDetailsScreen({ route }: VehicleDetailsProps) {
   const { vehicleId } = route.params;
+
   const [vehicleDetails, setVehicleDetails] = useState<VehicleProps>({
     id: 0,
     name: '',
@@ -23,17 +17,21 @@ export default function VehicleDetailsScreen({ route }: VehicleDetailsProps) {
     mileage: 0,
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const vehicleData = await getVehicleById(db, vehicleId);
-        setVehicleDetails(vehicleData);
-      } catch (error) {
-        console.error('Błąd pobierania danych:', error);
-      }
-    };
+  const db = useSQLiteContext();
 
-    fetchData();
+  async function getVehiclesById(id: number) {
+    const result = await db.getAllAsync<VehicleProps>(
+      `SELECT * FROM vehicles WHERE id = ?;`,
+      [id]
+    );
+    console.log(result);
+    setVehicleDetails(result[0]);
+  }
+
+  useEffect(() => {
+    db.withTransactionAsync(async () => {
+      await getVehiclesById(vehicleId);
+    });
   }, []);
 
   const isSold = vehicleDetails.is_sold === 1 ? true : false;
@@ -41,7 +39,6 @@ export default function VehicleDetailsScreen({ route }: VehicleDetailsProps) {
   return (
     <View style={styles.container}>
       <Text>Vehicle Details</Text>
-      <Text>ID: {vehicleId}</Text>
       <Text>Name: {vehicleDetails.name}</Text>
       <Text>Model: {vehicleDetails.model}</Text>
       <Text>Mileage: {vehicleDetails.mileage}</Text>

@@ -46,7 +46,7 @@ export default function PrimaryInput({
       <TextInput
         style={[
           styles.input,
-          !isValid && isValid !== null && styles.isInputValid,
+          !isValid && isValid !== null && styles.inputInvalid,
         ]}
         value={inputText}
         onChangeText={handleTextChange}
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
   },
-  isInputValid: {
+  inputInvalid: {
     borderColor: 'red',
   },
 });
