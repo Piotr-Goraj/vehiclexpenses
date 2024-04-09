@@ -1,16 +1,10 @@
-import { StyleSheet, Pressable, Text } from 'react-native';
+import { StyleSheet, Pressable, Text, View, Image } from 'react-native';
 
 import colors from '../../utils/colors';
-
-interface Vehicle {
-  id: number;
-  name: string;
-  mileage: number;
-  is_sold?: number;
-}
+import { VehicleProps } from '../../utils/types';
 
 interface VehicleBtnProps {
-  details: Vehicle;
+  details: VehicleProps;
   onPress?: () => void;
 }
 
@@ -25,6 +19,14 @@ export default function VehicleBtn({ details, onPress }: VehicleBtnProps) {
       ]}
       onPress={onPress}
     >
+      {details.image && (
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${details.image}` }}
+            style={styles.imagePhoto}
+          />
+        </View>
+      )}
       <Text>{details.name}</Text>
       <Text>{details.mileage} km</Text>
       {isSold && <Text style={styles.soldText}>SOLD</Text>}
@@ -34,11 +36,14 @@ export default function VehicleBtn({ details, onPress }: VehicleBtnProps) {
 
 const styles = StyleSheet.create({
   container: {
+    position: 'relative',
+
     width: 164,
     height: 164,
     margin: 8,
 
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingBottom: 5,
     borderRadius: 8,
 
     alignItems: 'center',
@@ -51,8 +56,26 @@ const styles = StyleSheet.create({
     backgroundColor: colors.magenta[600],
     opacity: 0.5,
   },
+  imageContainer: {
+    flex: 1,
+  },
+  imagePhoto: {
+    width: 160,
+    height: '100%',
+
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+  },
   soldText: {
+    position: 'absolute',
+    top: 10,
+    left: 20,
+
     fontWeight: 'bold',
+    fontSize: 48,
+    backgroundColor: '#00000071',
+    borderRadius: 16,
+
     color: colors.yellow[300],
   },
 });

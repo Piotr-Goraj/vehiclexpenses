@@ -59,7 +59,7 @@ export interface VehiclesTab {
   mileage: number;
 }
 
-export interface GasTab {
+export interface GasTankTab {
   id: number;
   vehicle_id: number;
   fuel_type: string;
@@ -70,12 +70,25 @@ export interface GasTab {
   buy_date: string;
 }
 
-export interface ExpensesSummariseTab {
+export interface MileagesTab {
   id: number;
   vehicle_id: number;
-  expense_type: string;
+  year: number;
+  mileage: number;
+}
+
+export interface ExpensesTypeTab {
+  id: number;
+  type_name: string;
+}
+
+export interface ExpensesTab {
+  id: number;
+  vehicle_id: number;
+  name: string;
+  type: number;
   price: number;
-  buy_date: string;
+  date: string;
 }
 
 export interface SettingsTab {
@@ -101,13 +114,11 @@ export interface VehicleProps {
   id: number;
   name: string;
   model: string;
-  image?: Uint8Array;
+  image?: string;
   buy_date: string;
   buy_price: number;
   is_sold: 0 | 1;
   sold_date?: string;
   sold_price?: number;
   mileage: number;
-  gas_id?: number[];
-  expenses?: number[];
 }

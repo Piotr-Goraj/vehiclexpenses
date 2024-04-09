@@ -1,6 +1,5 @@
 import { StyleSheet, Text, Pressable } from 'react-native';
 
-import colors from '../../../utils/colors';
 import usePrimaryColors from '../../../hooks/usePrimaryColors';
 
 interface PrimaryButtonProps {

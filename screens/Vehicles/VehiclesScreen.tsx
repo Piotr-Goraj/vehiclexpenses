@@ -18,7 +18,7 @@ export default function VehiclesScreen({ navigation }: VehiclesList) {
     const result = await db.getAllAsync<VehicleProps>(
       `SELECT * FROM vehicles ORDER BY buy_date DESC;`
     );
-    console.log(result);
+    // console.log(result);
     setVehicles(result);
   }
 

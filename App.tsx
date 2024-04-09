@@ -24,8 +24,7 @@ export default function App() {
         const dbCheckTables = await checkTables(databaseName, true);
 
         if (dbCheckTables.rows.length === 0) {
-          console.log('Database is empty, creating tables...');
-          console.log('Tables created successfully.');
+          console.log('Database is empty');
         } else {
           const tables: string[] = [];
           dbCheckTables.rows.map((table) => tables.push(table.name));
