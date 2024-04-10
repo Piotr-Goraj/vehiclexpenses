@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Modal, View } from 'react-native';
 
-import PrimaryButton from '../ui/buttons/PrimaryButton';
+import ModalCard from './ModalCard';
 
 interface VehicleInfoProps {
   isModalVisible: boolean;
@@ -18,33 +18,13 @@ export default function VehicleInfoModal({
     setIsVisible(isModalVisible);
   }, [isModalVisible]);
 
-  const closeModal = () => {
-    setIsVisible(false);
-    onModal(false);
-  };
-
   return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType='fade'
-    >
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <View style={styles.buttonContainer}>
-            <PrimaryButton
-              title='Close'
-              onPress={closeModal}
-            />
-            {/* <PrimaryButton
-              title='Confirm'
-              onPress={saveVehicle}
-              btnColor='green'
-            /> */}
-          </View>
-        </View>
-      </View>
-    </Modal>
+    <ModalCard
+      onModal={onModal}
+      isModalVisible={isVisible}
+      isConfirm={false}
+      // onConfirm={}
+    ></ModalCard>
   );
 }
 

@@ -2,27 +2,22 @@ import React, { useState, useEffect, useReducer } from 'react';
 import { StyleSheet, Modal, View, Text } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
-import PrimaryButton from '../ui/buttons/PrimaryButton';
+import { MileagesTab, VehicleProps } from '../../utils/types';
+
 import PrimaryInput from '../ui/inputs/PrimaryInput';
 
-interface VehicleMileageProps {
-  vehicleId: number;
-  maxMileage: number;
-  vehicle: { name: string; model: string; buyDate: string };
-  isModalVisible: boolean;
-  onModal: (visible: boolean) => void;
-}
+import ModalCard from './ModalCard';
 
 interface FormReducerState {
-  yearValue: string;
+  yearValue: number;
   yearValid: boolean | null;
-  mileageValue: string;
+  mileageValue: number;
   mileageValid: boolean | null;
 }
 
 type FormReducerAction =
-  | { type: 'SET_YEAR'; value: string }
-  | { type: 'SET_MILEAGE'; value: string }
+  | { type: 'SET_YEAR'; value: number }
+  | { type: 'SET_MILEAGE'; value: number }
   | { type: 'RESET_STATE' };
 
 const formReducer = (state: FormReducerState, action: FormReducerAction) => {
@@ -30,20 +25,20 @@ const formReducer = (state: FormReducerState, action: FormReducerAction) => {
     case 'SET_YEAR':
       return {
         ...state,
-        yearValue: action.value.trim(),
-        yearValid: parseInt(action.value) >= 1900,
+        yearValue: action.value,
+        yearValid: action.value >= 1900,
       };
     case 'SET_MILEAGE':
       return {
         ...state,
-        mileageValue: action.value.trim(),
-        mileageValid: parseFloat(action.value) >= 0,
+        mileageValue: action.value,
+        mileageValid: action.value >= 0,
       };
     case 'RESET_STATE':
       return {
-        yearValue: '',
+        yearValue: -1,
         yearValid: null,
-        mileageValue: '',
+        mileageValue: -1,
         mileageValid: null,
       };
     default:
@@ -51,18 +46,26 @@ const formReducer = (state: FormReducerState, action: FormReducerAction) => {
   }
 };
 
+interface VehicleMileageProps {
+  vehicleId: number;
+  vehicle: VehicleProps;
+  yearlyMileages: MileagesTab[];
+  isModalVisible: boolean;
+  onModal: (visible: boolean) => void;
+}
+
 export default function VehicleMileageModal({
   vehicleId,
-  maxMileage,
-  vehicle = { name: 'NAME', model: 'MODEL', buyDate: '' },
+  vehicle,
+  yearlyMileages,
   isModalVisible,
   onModal,
 }: VehicleMileageProps) {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [formState, dispatchForm] = useReducer(formReducer, {
-    yearValue: '',
+    yearValue: -1,
     yearValid: null,
-    mileageValue: '',
+    mileageValue: -1,
     mileageValid: null,
   });
 
@@ -84,15 +87,15 @@ export default function VehicleMileageModal({
   const addYearlyMileage = async () => {
     const { yearValue, mileageValue } = formState;
 
-    const year = parseInt(yearValue);
-    const mileage = parseFloat(mileageValue);
+    const year = yearValue;
+    const mileage = mileageValue;
 
     const isFormValid: boolean | null =
       formState.yearValid && formState.mileageValid;
 
     if (!isFormValid) {
-      dispatchForm({ type: 'SET_YEAR', value: year.toString() });
-      dispatchForm({ type: 'SET_MILEAGE', value: mileage.toString() });
+      dispatchForm({ type: 'SET_YEAR', value: year });
+      dispatchForm({ type: 'SET_MILEAGE', value: mileage });
 
       console.log(year, mileage);
     } else {
@@ -108,50 +111,62 @@ export default function VehicleMileageModal({
     }
   };
 
-  return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType='fade'
-    >
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <Text>{`Add yearly mileage for ${vehicle.name} ${vehicle.model}`}</Text>
-          <PrimaryInput
-            placeholder='Year'
-            value={formState.yearValue}
-            isValid={formState.yearValid}
-            onTextChange={(text) =>
-              dispatchForm({ type: 'SET_YEAR', value: text })
-            }
-            inputMode='numeric'
-            keyboardType='numeric'
-          />
-          <PrimaryInput
-            placeholder='Mileage'
-            value={formState.mileageValue}
-            isValid={formState.mileageValid}
-            onTextChange={(text) =>
-              dispatchForm({ type: 'SET_MILEAGE', value: text })
-            }
-            inputMode='numeric'
-            keyboardType='numeric'
-          />
+  const maxYear = new Date().getFullYear();
+  const minYear = parseInt(vehicle.buy_date.split('-')[2]);
 
-          <View style={styles.buttonContainer}>
-            <PrimaryButton
-              title='Close'
-              onPress={closeModal}
-            />
-            <PrimaryButton
-              title='Confirm'
-              onPress={addYearlyMileage}
-              btnColor='green'
-            />
-          </View>
-        </View>
-      </View>
-    </Modal>
+  const yearInputHandler = (text: string) => {
+    const yearInput = parseInt(text);
+
+    if (yearInput >= minYear && yearInput <= maxYear) {
+      dispatchForm({ type: 'SET_YEAR', value: yearInput });
+    } else {
+      dispatchForm({ type: 'SET_YEAR', value: -1 });
+    }
+  };
+
+  const yearlyMileagesSum = yearlyMileages.reduce(
+    (accumulator, year) => accumulator + year.mileage,
+    0
+  );
+  const maxMileages = vehicle.mileage - yearlyMileagesSum;
+
+  const mileageInputHandler = (text: string) => {
+    const inputMileage = parseFloat(text);
+
+    if (inputMileage <= maxMileages) {
+      dispatchForm({ type: 'SET_MILEAGE', value: inputMileage });
+    } else {
+      dispatchForm({ type: 'SET_MILEAGE', value: -1 });
+    }
+  };
+
+  return (
+    <ModalCard
+      onModal={onModal}
+      isModalVisible={isVisible}
+      isConfirm={true}
+      onConfirm={addYearlyMileage}
+    >
+      <Text
+        style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 32 }}
+      >{`Add yearly mileage for ${vehicle.name} ${vehicle.model}`}</Text>
+      <PrimaryInput
+        placeholder='Year'
+        value={formState.yearValue.toString()}
+        isValid={formState.yearValid}
+        onTextChange={(text) => yearInputHandler(text)}
+        inputMode='numeric'
+        keyboardType='numeric'
+      />
+      <PrimaryInput
+        placeholder='Mileage'
+        value={formState.mileageValue.toString()}
+        isValid={formState.mileageValid}
+        onTextChange={(text) => mileageInputHandler(text)}
+        inputMode='numeric'
+        keyboardType='numeric'
+      />
+    </ModalCard>
   );
 }
 

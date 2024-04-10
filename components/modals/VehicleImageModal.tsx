@@ -5,7 +5,7 @@ import * as FileSystem from 'expo-file-system';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import PrimaryButton from '../ui/buttons/PrimaryButton';
-import { VehicleProps } from '../../utils/types';
+import ModalCard from './ModalCard';
 
 interface ImageModalProps {
   isModalVisible: boolean;
@@ -73,41 +73,26 @@ export default function VehicleImageModal({
   };
 
   return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType='fade'
+    <ModalCard
+      onModal={onModal}
+      isModalVisible={isVisible}
+      isConfirm={true}
+      onConfirm={saveImage}
     >
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <View style={styles.imageContainer}>
-            {!isImageSaved && <Text>Image didn't saved.</Text>}
-            {image && (
-              <Image
-                source={{ uri: `data:image/jpeg;base64,${image}` }}
-                style={styles.image}
-              />
-            )}
-          </View>
-          <PrimaryButton
-            title='Pick an image'
-            onPress={pickImage}
+      <View style={styles.imageContainer}>
+        {!isImageSaved && <Text>Image didn't saved.</Text>}
+        {image && (
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${image}` }}
+            style={styles.image}
           />
-
-          <View style={styles.buttonContainer}>
-            <PrimaryButton
-              title='Close'
-              onPress={closeModal}
-            />
-            <PrimaryButton
-              title='Confirm'
-              onPress={saveImage}
-              btnColor='green'
-            />
-          </View>
-        </View>
+        )}
       </View>
-    </Modal>
+      <PrimaryButton
+        title='Pick an image'
+        onPress={pickImage}
+      />
+    </ModalCard>
   );
 }
 

@@ -1,6 +1,12 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 
+// ************** UI types ************** \\
+export type ColorIntensity = {
+  color: 'blue' | 'green' | 'red' | 'yellow' | 'cyan' | 'magenta';
+  intensity: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+};
+
 // ************** navigators types ************** \\
 
 export type RootStackParamList = {

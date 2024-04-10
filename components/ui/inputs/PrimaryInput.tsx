@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
 
     borderWidth: 1,
     borderColor: 'gray',
-    borderRadius: 5,
+    borderRadius: 12,
     padding: 10,
   },
   inputInvalid: {

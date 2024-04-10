@@ -1,34 +1,41 @@
+import { useState } from 'react';
 import { StyleSheet, Text, Pressable } from 'react-native';
 
 import usePrimaryColors from '../../../hooks/usePrimaryColors';
 
+import { ColorIntensity } from '../../../utils/types';
+
 interface PrimaryButtonProps {
   title: string;
   onPress: () => void;
-  btnColor?: 'blue' | 'green' | 'red' | 'yellow' | 'cyan' | 'magenta';
+  btnColor?: ColorIntensity;
 }
 
 export default function PrimaryButton({
   title,
   onPress,
-  btnColor = 'blue',
+  btnColor = { color: 'blue', intensity: 400 },
 }: PrimaryButtonProps) {
-  const color = usePrimaryColors(btnColor);
+  const color = usePrimaryColors(btnColor.color);
+  const [isPressed, setIsPressed] = useState<boolean>(false);
 
   return (
     <Pressable
       onPress={onPress}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
       style={({ pressed }) => [
         styles.button,
         {
-          borderColor: color[300],
+          borderColor: color[btnColor.intensity],
         },
         pressed && {
-          backgroundColor: color[100],
+          backgroundColor: color[btnColor.intensity],
+          borderWidth: 0,
         },
       ]}
     >
-      <Text>{title}</Text>
+      <Text style={{ color: isPressed ? '#fff' : '#000' }}>{title}</Text>
     </Pressable>
   );
 }

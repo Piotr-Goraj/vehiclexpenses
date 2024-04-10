@@ -32,6 +32,8 @@ export default function VehicleDetailsScreen({
     useState<boolean>(false);
   const [isMileageModalVisible, setIsMileageModalVisible] =
     useState<boolean>(false);
+  const [changeMileageModalVisible, setChangeMileageModalVisible] =
+    useState<boolean>(false);
   const [isInfoModalVisible, setIsInfoModalVisible] = useState<boolean>(false);
   const [isGasTankAddModalVisible, setIsGasTankAddModalVisible] =
     useState<boolean>(false);
@@ -92,6 +94,7 @@ export default function VehicleDetailsScreen({
     isMileageModalVisible,
     isInfoModalVisible,
     isGasTankAddModalVisible,
+    changeMileageModalVisible,
   ]);
 
   const isSold = vehicleDetails.is_sold === 1 ? true : false;
@@ -105,12 +108,8 @@ export default function VehicleDetailsScreen({
       />
       <VehicleMileageModal
         vehicleId={vehicleId}
-        maxMileage={vehicleDetails.mileage}
-        vehicle={{
-          name: vehicleDetails.name,
-          model: vehicleDetails.model,
-          buyDate: vehicleDetails.buy_date,
-        }}
+        vehicle={vehicleDetails}
+        yearlyMileages={yearlyMileages}
         isModalVisible={isMileageModalVisible}
         onModal={setIsMileageModalVisible}
       />
@@ -139,10 +138,14 @@ export default function VehicleDetailsScreen({
 
           <VehiclesInfoBox>
             <VehicleInfoTxt
-              text={`Mileage: ${vehicleDetails.mileage}`}
+              text={`Mileage: ${vehicleDetails.mileage} km`}
               textColor='light'
             />
-            <VehicleMileageTxt yearlyMileages={yearlyMileages} />
+            <VehicleMileageTxt
+              changeMileageModalVisible={setChangeMileageModalVisible}
+              yearlyMileages={yearlyMileages}
+              vehicleDetails={vehicleDetails}
+            />
 
             <AddButton
               onAddPress={() => {
