@@ -25,6 +25,7 @@ export default function BottomTabNavigator() {
         name={'VehiclesNav'}
         component={VehiclesNavigator}
         options={{
+          tabBarActiveTintColor: colors.green[500],
           tabBarIcon: ({ color, size }) => (
             <AntDesign
               name='car'
@@ -39,6 +40,7 @@ export default function BottomTabNavigator() {
         name={'Gas'}
         component={GasScreen}
         options={{
+          tabBarActiveTintColor: colors.red[400],
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name='gas-station-outline'
@@ -52,6 +54,7 @@ export default function BottomTabNavigator() {
         name={'Summarise'}
         component={SummariseScreen}
         options={{
+          tabBarActiveTintColor: colors.yellow[300],
           tabBarIcon: ({ color, size }) => (
             <AntDesign
               name='linechart'
