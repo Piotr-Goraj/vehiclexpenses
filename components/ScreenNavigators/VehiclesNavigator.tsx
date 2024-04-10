@@ -4,12 +4,16 @@ import VehiclesScreen from '../../screens/Vehicles/VehiclesScreen';
 import VehicleDetailsScreen from '../../screens/Vehicles/VehicleDetailsScreen';
 
 import { RootStackParamList, VehiclesNavProps } from '../../utils/types';
+import colors from '../../utils/colors';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function VehiclesNavigator({}: VehiclesNavProps) {
   return (
-    <Stack.Navigator initialRouteName='VehiclesList'>
+    <Stack.Navigator
+      initialRouteName='VehiclesList'
+      screenOptions={{ contentStyle: { backgroundColor: colors.grey[200] } }}
+    >
       <Stack.Screen
         name={'VehiclesList'}
         component={VehiclesScreen}

@@ -130,6 +130,7 @@ export default function VehicleDetailsScreen({
               source={{ uri: `data:image/jpeg;base64,${vehicleDetails.image}` }}
               style={styles.imagePhoto}
             />
+            <Text style={[styles.titleText, styles.imageText]}>Image</Text>
             <EditButton
               onEditPress={() => {
                 setIsImageModalVisible(true);
@@ -148,6 +149,7 @@ export default function VehicleDetailsScreen({
               vehicleDetails={vehicleDetails}
             />
 
+            <Text style={[styles.titleText, styles.mileageText]}>Mileage</Text>
             <AddButton
               onAddPress={() => {
                 setIsMileageModalVisible(true);
@@ -193,6 +195,7 @@ export default function VehicleDetailsScreen({
               boxColor={{ color: 'magenta', intensity: 600 }}
             />
 
+            <Text style={[styles.titleText, styles.infoText]}>Info</Text>
             <EditButton
               onEditPress={() => {
                 setIsInfoModalVisible(true);
@@ -201,17 +204,21 @@ export default function VehicleDetailsScreen({
           </VehiclesInfoBox>
 
           <View style={styles.gasTanksContainer}>
+            <Text style={[styles.titleText, styles.gasTanksText]}>
+              Gas tanks
+            </Text>
             <AddButton
               onAddPress={() => {
                 setIsGasTankAddModalVisible(true);
               }}
             />
-            <Text>Gas tanks</Text>
           </View>
 
           <View style={styles.expensesContainer}>
+            <Text style={[styles.titleText, styles.expensesText]}>
+              Expenses
+            </Text>
             <AddButton onAddPress={() => {}} />
-            <Text>Expenses</Text>
           </View>
         </View>
       </ScrollView>
@@ -245,7 +252,8 @@ const styles = StyleSheet.create({
   gasTanksContainer: {
     position: 'relative',
 
-    marginVertical: 8,
+    marginTop: 20,
+    marginBottom: 8,
 
     width: 360,
     height: 200,
@@ -253,6 +261,39 @@ const styles = StyleSheet.create({
     borderColor: colors.red[400],
     borderWidth: 2,
     borderRadius: 16,
+  },
+  titleText: {
+    position: 'absolute',
+
+    backgroundColor: 'white',
+    borderRadius: 8,
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
+    padding: 2,
+    height: 24,
+
+    top: -14,
+  },
+  imageText: {
+    width: 80,
+    left: 140,
+  },
+  mileageText: {
+    width: 80,
+    left: 46,
+  },
+  infoText: {
+    width: 50,
+    left: 61,
+  },
+  gasTanksText: {
+    width: 100,
+    left: 130,
+  },
+  expensesText: {
+    width: 100,
+    left: 130,
   },
   expensesContainer: {
     position: 'relative',

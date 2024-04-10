@@ -8,12 +8,19 @@ import SummariseScreen from '../../screens/SummariseScreen';
 import SettingsScreen from '../../screens/SettingsScreen';
 
 import { RootStackParamList } from '../../utils/types';
+import colors from '../../utils/colors';
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
 export default function BottomTabNavigator() {
   return (
-    <Tab.Navigator initialRouteName={'VehiclesNav'}>
+    <Tab.Navigator
+      initialRouteName={'VehiclesNav'}
+      backBehavior='history'
+      sceneContainerStyle={{
+        backgroundColor: colors.grey[200],
+      }}
+    >
       <Tab.Screen
         name={'VehiclesNav'}
         component={VehiclesNavigator}
