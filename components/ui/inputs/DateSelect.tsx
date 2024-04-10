@@ -70,7 +70,7 @@ export default function DateSelect({ isValid, onDateChange }: DateSelectProps) {
           mode='date'
           is24Hour={true}
           display='default'
-          maximumDate={maxDate} // Ustawienie maksymalnej daty
+          maximumDate={maxDate}
           onChange={handleDateChange}
           style={[!isValid && isValid !== null && styles.isInvalid]}
         />

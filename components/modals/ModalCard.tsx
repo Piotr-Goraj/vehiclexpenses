@@ -79,16 +79,6 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
   },
-  contentContainerRoot: {
-    flex: 1,
-  },
-  contentContainer: {
-    alignItems: 'center',
-  },
-  titleText: {
-    fontSize: 20,
-    marginBottom: 16,
-  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',

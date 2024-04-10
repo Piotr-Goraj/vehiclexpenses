@@ -1,16 +1,7 @@
 import React, { useState, useEffect, useReducer } from 'react';
-import {
-  StyleSheet,
-  Text,
-  Modal,
-  Animated,
-  ScrollView,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, Modal, ScrollView, View } from 'react-native';
 
 import { useSQLiteContext } from 'expo-sqlite/next';
-
-import { InputNewVehicleProps } from '../../utils/types';
 
 import PrimaryInput from '../ui/inputs/PrimaryInput';
 import DateSelect from '../ui/inputs/DateSelect';
@@ -254,7 +245,7 @@ export default function NewVehicleModal({
             <PrimaryButton
               title='Confirm'
               onPress={saveVehicle}
-              btnColor='green'
+              btnColor={{ color: 'green', intensity: 400 }}
             />
           </View>
         </View>

@@ -3,7 +3,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 
 // ************** UI types ************** \\
 export type ColorIntensity = {
-  color: 'blue' | 'green' | 'red' | 'yellow' | 'cyan' | 'magenta';
+  color: 'blue' | 'green' | 'red' | 'yellow' | 'cyan' | 'magenta' | 'grey';
   intensity: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 };
 

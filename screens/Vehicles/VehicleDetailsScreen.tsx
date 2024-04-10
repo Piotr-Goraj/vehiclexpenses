@@ -116,6 +116,7 @@ export default function VehicleDetailsScreen({
       <VehicleInfoModal
         isModalVisible={isInfoModalVisible}
         onModal={setIsInfoModalVisible}
+        vehicle={vehicleDetails}
       />
       <VehicleGasTankAddModal
         isModalVisible={isGasTankAddModalVisible}
@@ -207,6 +208,11 @@ export default function VehicleDetailsScreen({
             />
             <Text>Gas tanks</Text>
           </View>
+
+          <View style={styles.expensesContainer}>
+            <AddButton onAddPress={() => {}} />
+            <Text>Expenses</Text>
+          </View>
         </View>
       </ScrollView>
     </>
@@ -239,12 +245,24 @@ const styles = StyleSheet.create({
   gasTanksContainer: {
     position: 'relative',
 
-    marginVertical: 16,
+    marginVertical: 8,
 
     width: 360,
     height: 200,
 
     borderColor: colors.red[400],
+    borderWidth: 2,
+    borderRadius: 16,
+  },
+  expensesContainer: {
+    position: 'relative',
+
+    marginVertical: 8,
+
+    width: 360,
+    height: 200,
+
+    borderColor: colors.cyan[400],
     borderWidth: 2,
     borderRadius: 16,
   },
