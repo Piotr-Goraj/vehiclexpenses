@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import ModalCard from './ModalCard';
-import { VehicleProps } from '../../utils/types';
+import { VehiclesTab } from '../../utils/types';
 
 import PrimaryInput from '../ui/inputs/PrimaryInput';
 import IsVehicleSoldButton from '../ui/buttons/IsVehicleSoldButton';
@@ -106,7 +106,7 @@ const formReducer = (state: FormState, action: FormAction) => {
 };
 
 interface VehicleInfoProps {
-  vehicle: VehicleProps;
+  vehicle: VehiclesTab;
   isModalVisible: boolean;
   onModal: (visible: boolean) => void;
 }
@@ -150,7 +150,10 @@ export default function VehicleInfoModal({
       type: 'SET_BUY_PRICE',
       value: vehicle.buy_price.toString(),
     });
-    dispatchForm({ type: 'SET_MILEAGE', value: vehicle.mileage.toString() });
+    dispatchForm({
+      type: 'SET_MILEAGE',
+      value: vehicle.buy_mileage.toString(),
+    });
 
     return () => {
       setIsSold(vehicle.is_sold === 0 ? false : true);
@@ -297,7 +300,7 @@ export default function VehicleInfoModal({
             }
           />
           <PrimaryInput
-            placeholder={`Mileage: ${vehicle.mileage}`}
+            placeholder={`Mileage: ${vehicle.buy_mileage}`}
             inputMode='decimal'
             keyboardType='number-pad'
             value={formState.mileageValue}

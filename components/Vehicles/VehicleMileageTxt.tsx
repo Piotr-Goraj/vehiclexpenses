@@ -1,13 +1,13 @@
 import { StyleSheet, View, Text, ScrollView, Pressable } from 'react-native';
 
-import { MileagesTab, VehicleProps } from '../../utils/types';
+import { MileagesTab, VehiclesTab } from '../../utils/types';
 import { useEffect, useState } from 'react';
 import VehicleInfoTxt from './VehicleInfoTxt';
 import YearMilageEditModal from '../modals/YearMilageEditModal';
 
 interface VehicleMileageTxtProps {
   yearlyMileages: MileagesTab[];
-  vehicleDetails: VehicleProps;
+  vehicleDetails: VehiclesTab;
   changeMileageModalVisible: (isVisible: boolean) => void;
 }
 

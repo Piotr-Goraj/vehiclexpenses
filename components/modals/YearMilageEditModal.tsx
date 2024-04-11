@@ -89,6 +89,8 @@ export default function YearMilageEditModal({
         value={mileage}
         isValid={isValid}
         onTextChange={(text) => mileageChangeHandler(text)}
+        inputMode='numeric'
+        keyboardType='number-pad'
       />
     </ModalCard>
   );

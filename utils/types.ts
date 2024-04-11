@@ -50,40 +50,9 @@ export type SettingsProps = BottomTabScreenProps<
   'Settings'
 >;
 
-// ************** SQLite types ************** \\
+// ************** SQLite tables types ************** \\
 
-export interface VehiclesTab {
-  id: number;
-  name: string;
-  model: string;
-  image: Uint8Array;
-  buy_date: string;
-  buy_price: number;
-  is_sold: 0 | 1;
-  sold_date: string;
-  sold_price: number;
-  mileage: number;
-}
-
-export interface GasTankTab {
-  id: number;
-  vehicle_id: number;
-  fuel_type: string;
-  capacity: number;
-  mileage_before: number;
-  price_per_liter: number;
-  gas_station: string;
-  buy_date: string;
-}
-
-export interface MileagesTab {
-  id: number;
-  vehicle_id: number;
-  year: number;
-  mileage: number;
-}
-
-export interface ExpensesTypeTab {
+export interface ExpenseTypeTab {
   id: number;
   type_name: string;
 }
@@ -97,34 +66,54 @@ export interface ExpensesTab {
   date: string;
 }
 
+export interface FaultsTab {
+  id: number;
+  vehicle_id: number;
+  is_repaired: 0 | 1;
+  fault_title: string;
+}
+
+export interface FuelTypeTab {
+  id: number;
+  type_name: string;
+}
+
+export interface GasTankTab {
+  id: number;
+  vehicle_id: number;
+  gas_station: string;
+  fuel_type: number;
+  price_per_liter: number;
+  capacity: number;
+  mileage_before: number;
+  mileage_after: number;
+  buy_date: string;
+}
+
+export interface MileagesTab {
+  id: number;
+  vehicle_id: number;
+  year: number;
+  mileage: number;
+}
+
 export interface SettingsTab {
   id: number;
   key: string;
   value: string;
 }
 
-export interface InputNewVehicleProps {
-  dbName: string;
-  name: string;
-  model: string;
-  image: Uint8Array | null;
-  buyDate: string;
-  buyPrice: number;
-  isSold: 0 | 1;
-  soldDate: string | null;
-  soldPrice: number | null;
-  mileage: number;
-}
-
-export interface VehicleProps {
+export interface VehiclesTab {
   id: number;
   name: string;
   model: string;
   image?: string;
+  producted_year: number;
   buy_date: string;
   buy_price: number;
+  buy_mileage: number;
   is_sold: 0 | 1;
   sold_date?: string;
   sold_price?: number;
-  mileage: number;
+  current_mileage: number;
 }

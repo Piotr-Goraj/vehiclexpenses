@@ -1,29 +1,33 @@
-import { StyleSheet, View, Text, TextStyle } from 'react-native';
+import { StyleSheet, View, Text, ViewStyle } from 'react-native';
 
 import usePrimaryColors from '../../hooks/usePrimaryColors';
 
 import colors from '../../utils/colors';
+import { ColorIntensity } from '../../utils/types';
 
 interface VehiclesInfoTxtProps {
   text: string;
   textColor?: 'light' | 'dark';
-  boxColor?: {
-    color: 'blue' | 'green' | 'red' | 'yellow' | 'cyan' | 'magenta';
-    intensity: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
-  };
+  boxColor?: ColorIntensity;
+  customStyle?: ViewStyle;
 }
 
 export default function VehicleInfoTxt({
   text,
   textColor = 'dark',
   boxColor = { color: 'blue', intensity: 100 },
+  customStyle,
 }: VehiclesInfoTxtProps) {
   const color = usePrimaryColors(boxColor.color);
   const fontColor = textColor === 'dark' ? colors.fontDark : colors.fontLight;
 
   return (
     <View
-      style={[styles.container, { backgroundColor: color[boxColor.intensity] }]}
+      style={[
+        styles.container,
+        { backgroundColor: color[boxColor.intensity] },
+        customStyle,
+      ]}
     >
       <Text style={{ color: fontColor }}>{text}</Text>
     </View>

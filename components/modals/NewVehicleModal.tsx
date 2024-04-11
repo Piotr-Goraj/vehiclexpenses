@@ -4,7 +4,7 @@ import { StyleSheet, Text, Modal, ScrollView, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import PrimaryInput from '../ui/inputs/PrimaryInput';
-import DateSelect from '../ui/inputs/DateSelect';
+import DateInput from '../ui/inputs/DateInput';
 import PrimaryButton from '../ui/buttons/PrimaryButton';
 
 interface NewVehicleModalProps {
@@ -15,23 +15,33 @@ interface NewVehicleModalProps {
 interface FormState {
   vehicleNameValue: string;
   vehicleNameValid: boolean | null;
+
   vehicleModelValue: string;
   vehicleModelValid: boolean | null;
+
+  productedYearValue: number;
+  productedYearValid: boolean | null;
+
   buyDateValue: string;
   buyDateValid: boolean | null;
-  buyPriceValue: string;
+
+  buyPriceValue: number;
   buyPriceValid: boolean | null;
-  mileageValue: string;
-  mileageValid: boolean | null;
+
+  buyMileageValue: number;
+  buyMileageValid: boolean | null;
 }
 
 type FormAction =
   | { type: 'SET_VEHICLE_NAME'; value: string }
   | { type: 'SET_VEHICLE_MODEL'; value: string }
+  | { type: 'SET_PRODUCTED_YEAR'; value: number }
   | { type: 'SET_BUY_DATE'; value: string }
-  | { type: 'SET_BUY_PRICE'; value: string }
-  | { type: 'SET_MILEAGE'; value: string }
+  | { type: 'SET_BUY_PRICE'; value: number }
+  | { type: 'SET_BUY_MILEAGE'; value: number }
   | { type: 'RESET_STATE' };
+
+const currentYear = new Date().getFullYear();
 
 const formReducer = (state: FormState, action: FormAction) => {
   switch (action.type) {
@@ -50,6 +60,12 @@ const formReducer = (state: FormState, action: FormAction) => {
         vehicleModelValue: action.value.trim(),
         vehicleModelValid: trimmedModel.length > 0,
       };
+    case 'SET_PRODUCTED_YEAR':
+      return {
+        ...state,
+        productedYearValue: action.value,
+        productedYearValid: action.value > 1890 && action.value <= currentYear,
+      };
     case 'SET_BUY_DATE':
       return {
         ...state,
@@ -59,27 +75,34 @@ const formReducer = (state: FormState, action: FormAction) => {
     case 'SET_BUY_PRICE':
       return {
         ...state,
-        buyPriceValue: action.value.trim(),
-        buyPriceValid: parseFloat(action.value) >= 0,
+        buyPriceValue: action.value,
+        buyPriceValid: action.value >= 0,
       };
-    case 'SET_MILEAGE':
+    case 'SET_BUY_MILEAGE':
       return {
         ...state,
-        mileageValue: action.value.trim(),
-        mileageValid: parseFloat(action.value) >= 0,
+        buyMileageValue: action.value,
+        buyMileageValid: action.value >= 0,
       };
     case 'RESET_STATE':
       return {
         vehicleNameValue: '',
         vehicleNameValid: null,
+
         vehicleModelValue: '',
         vehicleModelValid: null,
+
+        productedYearValue: -1,
+        productedYearValid: null,
+
         buyDateValue: '',
         buyDateValid: null,
-        buyPriceValue: '',
+
+        buyPriceValue: -1,
         buyPriceValid: null,
-        mileageValue: '',
-        mileageValid: null,
+
+        buyMileageValue: -1,
+        buyMileageValid: null,
       };
     default:
       return state;
@@ -93,14 +116,21 @@ export default function NewVehicleModal({
   const [formState, dispatchForm] = useReducer(formReducer, {
     vehicleNameValue: '',
     vehicleNameValid: null,
+
     vehicleModelValue: '',
     vehicleModelValid: null,
+
+    productedYearValue: -1,
+    productedYearValid: null,
+
     buyDateValue: '',
     buyDateValid: null,
-    buyPriceValue: '',
+
+    buyPriceValue: -1,
     buyPriceValid: null,
-    mileageValue: '',
-    mileageValid: null,
+
+    buyMileageValue: -1,
+    buyMileageValid: null,
   });
 
   const db = useSQLiteContext();
@@ -123,40 +153,42 @@ export default function NewVehicleModal({
     const {
       vehicleNameValue: name,
       vehicleModelValue: model,
+      productedYearValue: productedYear,
       buyDateValue: buyDate,
       buyPriceValue: buyPrice,
-      mileageValue: mileage,
+      buyMileageValue: buyMileage,
     } = formState;
-
-    const isSold = 0;
 
     const isFormValid: boolean | null =
       formState.vehicleNameValid &&
       formState.vehicleModelValid &&
       formState.buyPriceValid &&
-      formState.mileageValid;
-
-    // console.log(
-    //   `:${name}:`,
-    //   `:${model}:`,
-    //   `:${mileage}:`,
-    //   `:${buyDate}:`,
-    //   `:${buyPrice}:`
-    // );
+      formState.buyMileageValid;
 
     if (!isFormValid) {
       dispatchForm({ type: 'SET_VEHICLE_NAME', value: name });
       dispatchForm({ type: 'SET_VEHICLE_MODEL', value: model });
+      dispatchForm({ type: 'SET_PRODUCTED_YEAR', value: productedYear });
+      dispatchForm({ type: 'SET_BUY_DATE', value: buyDate });
       dispatchForm({ type: 'SET_BUY_PRICE', value: buyPrice });
-      dispatchForm({ type: 'SET_MILEAGE', value: mileage });
+      dispatchForm({ type: 'SET_BUY_MILEAGE', value: buyMileage });
 
-      console.log(name, model, buyPrice, mileage);
+      console.log(name, model, buyPrice, buyMileage);
     } else {
       db.withTransactionAsync(async () => {
         await db
           .runAsync(
-            `INSERT INTO vehicles (name, model, buy_date, buy_price, is_sold, mileage) VALUES (?, ?, ?, ?, ?, ?);`,
-            [name, model, buyDate, buyPrice, isSold, mileage]
+            `INSERT INTO vehicles (name, model, producted_year, buy_date, buy_price, is_sold, buy_mileage, current_mileage) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+            [
+              name,
+              model,
+              productedYear,
+              buyDate,
+              buyPrice,
+              0,
+              buyMileage,
+              buyMileage,
+            ]
           )
           .then(() => closeModal())
           .catch((error) => console.error(error));
@@ -198,26 +230,38 @@ export default function NewVehicleModal({
                 }
               />
 
-              <DateSelect
-                isValid={formState.buyDateValid}
-                onDateChange={(date) => {
+              <PrimaryInput
+                placeholder='Year of production...'
+                value={formState.productedYearValue.toString()}
+                isValid={formState.productedYearValid}
+                onTextChange={(text) =>
                   dispatchForm({
-                    type: 'SET_BUY_DATE',
-                    value: date,
-                  });
-                }}
+                    type: 'SET_PRODUCTED_YEAR',
+                    value: parseInt(text),
+                  })
+                }
+                inputMode='numeric'
+                keyboardType='number-pad'
+              />
+
+              <DateInput
+                title='Buy date'
+                isValid={formState.buyDateValid}
+                onDataSet={(data) =>
+                  dispatchForm({ type: 'SET_BUY_DATE', value: data })
+                }
               />
 
               <PrimaryInput
                 placeholder='Buy price...'
                 inputMode='decimal'
                 keyboardType='number-pad'
-                value={formState.buyPriceValue}
+                value={formState.buyPriceValue.toString()}
                 isValid={formState.buyPriceValid}
                 onTextChange={(text) =>
                   dispatchForm({
                     type: 'SET_BUY_PRICE',
-                    value: text,
+                    value: parseFloat(text),
                   })
                 }
               />
@@ -225,12 +269,12 @@ export default function NewVehicleModal({
                 placeholder='Mileage...'
                 inputMode='decimal'
                 keyboardType='number-pad'
-                value={formState.mileageValue}
-                isValid={formState.mileageValid}
+                value={formState.buyMileageValue.toString()}
+                isValid={formState.buyMileageValid}
                 onTextChange={(text) =>
                   dispatchForm({
-                    type: 'SET_MILEAGE',
-                    value: text,
+                    type: 'SET_BUY_MILEAGE',
+                    value: parseFloat(text),
                   })
                 }
               />

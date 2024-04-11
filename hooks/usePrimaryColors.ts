@@ -12,6 +12,8 @@ export default function usePrimaryColors(chosenColor: string) {
       ? colors.yellow
       : chosenColor === 'magenta'
       ? colors.magenta
+      : chosenColor === 'grey'
+      ? colors.grey
       : colors.blue;
 
   return color;

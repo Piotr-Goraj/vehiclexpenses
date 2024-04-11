@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
-import { VehiclesList, VehicleProps } from '../../utils/types';
+import { VehiclesList, VehiclesTab } from '../../utils/types';
 
 import VehicleBtn from '../../components/Vehicles/VehicleBtn';
 import NewVehicleModal from '../../components/modals/NewVehicleModal';
@@ -10,12 +10,12 @@ import AddVehicleModalBtn from '../../components/ui/buttons/AddVehicleModalBtn';
 
 export default function VehiclesScreen({ navigation }: VehiclesList) {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [vehicles, setVehicles] = useState<VehicleProps[]>([]);
+  const [vehicles, setVehicles] = useState<VehiclesTab[]>([]);
 
   const db = useSQLiteContext();
 
   async function getAllVehicles() {
-    const result = await db.getAllAsync<VehicleProps>(
+    const result = await db.getAllAsync<VehiclesTab>(
       `SELECT * FROM vehicles ORDER BY buy_date DESC;`
     );
     // console.log(result);

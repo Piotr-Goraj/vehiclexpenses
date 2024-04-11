@@ -4,10 +4,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import {
+  FuelTypeTab,
   GasTankTab,
   MileagesTab,
   VehicleDetailsProps,
-  VehicleProps,
+  VehiclesTab,
 } from '../../utils/types';
 import colors from '../../utils/colors';
 
@@ -20,6 +21,8 @@ import VehicleInfoModal from '../../components/modals/VehicleInfoModal';
 import VehicleMileageModal from '../../components/modals/VehicleMileageModal';
 import VehicleGasTankAddModal from '../../components/modals/VehicleGasTankAddModal';
 import VehicleMileageTxt from '../../components/Vehicles/VehicleMileageTxt';
+import useDateDelta from '../../hooks/useDateDelta';
+import VehicleGasTankDetails from '../../components/Vehicles/VehicleGasTankDetails';
 
 export default function VehicleDetailsScreen({
   route,
@@ -37,16 +40,50 @@ export default function VehicleDetailsScreen({
   const [isInfoModalVisible, setIsInfoModalVisible] = useState<boolean>(false);
   const [isGasTankAddModalVisible, setIsGasTankAddModalVisible] =
     useState<boolean>(false);
-  const [vehicleDetails, setVehicleDetails] = useState<VehicleProps>({
+
+  const [vehicleDetails, setVehicleDetails] = useState<VehiclesTab>({
     id: 0,
     name: '',
     model: '',
+    image: '',
+    producted_year: 1890,
     buy_date: '',
     buy_price: 0,
+    buy_mileage: 1980,
     is_sold: 0,
-    mileage: 0,
+    current_mileage: 0,
   });
   const [yearlyMileages, setYearlyMileages] = useState<MileagesTab[]>([]);
+  const [traveledMileage, setTraveledMileage] = useState<number>(0);
+  const [gasTanks, setGasTanks] = useState<GasTankTab[]>([
+    {
+      id: 0,
+      vehicle_id: 0,
+      gas_station: 'Shell',
+      fuel_type: 2,
+      price_per_liter: 6.52,
+      capacity: 6.74,
+      mileage_before: 51000,
+      mileage_after: 51136,
+      buy_date: '14-03-2024',
+    },
+    {
+      id: 1,
+      vehicle_id: 1,
+      gas_station: 'Orlen',
+      fuel_type: 1,
+      price_per_liter: 6.72,
+      capacity: 2.32,
+      mileage_before: 51136,
+      mileage_after: 51240,
+      buy_date: '16-03-2024',
+    },
+  ]);
+  const [fuelTypes, setFuelTypes] = useState<FuelTypeTab[]>([]);
+  const [isSold, setIsSold] = useState<boolean>(false);
+
+  const [differenceInDays, differenceInMonths, differenceInYears] =
+    useDateDelta(vehicleDetails.buy_date);
 
   useFocusEffect(
     useCallback(() => {
@@ -60,7 +97,7 @@ export default function VehicleDetailsScreen({
   const db = useSQLiteContext();
 
   async function getVehiclesById(id: number) {
-    const result = await db.getAllAsync<VehicleProps>(
+    const result = await db.getAllAsync<VehiclesTab>(
       `SELECT * FROM vehicles WHERE id = ?;`,
       [id]
     );
@@ -72,7 +109,7 @@ export default function VehicleDetailsScreen({
       `SELECT * FROM gas_tank WHERE vehicle_id = ?;`,
       [id]
     );
-    // console.log('Gas: ', result);
+    setGasTanks(result);
   }
 
   async function getMeleagesVehicleId(id: number) {
@@ -83,12 +120,23 @@ export default function VehicleDetailsScreen({
     setYearlyMileages(result);
   }
 
+  async function getFuelTypes() {
+    const result = await db.getAllAsync<FuelTypeTab>(
+      `SELECT * FROM fuel_type;`,
+      []
+    );
+    setFuelTypes(result);
+  }
+
   useEffect(() => {
     db.withTransactionAsync(async () => {
       await getVehiclesById(vehicleId);
-      await getGasByVehicleId(vehicleId);
+      // await getGasByVehicleId(vehicleId);
       await getMeleagesVehicleId(vehicleId);
+      await getFuelTypes();
     });
+
+    setIsSold(vehicleDetails.is_sold === 1 ? true : false);
   }, [
     isImageModalVisible,
     isMileageModalVisible,
@@ -97,7 +145,16 @@ export default function VehicleDetailsScreen({
     changeMileageModalVisible,
   ]);
 
-  const isSold = vehicleDetails.is_sold === 1 ? true : false;
+  useEffect(() => {
+    let maxMileage = 0;
+    for (const key of yearlyMileages) {
+      if (key.mileage > maxMileage) {
+        maxMileage = key.mileage;
+      }
+    }
+
+    setTraveledMileage(maxMileage - vehicleDetails.current_mileage);
+  }, [yearlyMileages]);
 
   return (
     <>
@@ -107,7 +164,6 @@ export default function VehicleDetailsScreen({
         vehicleId={vehicleId}
       />
       <VehicleMileageModal
-        vehicleId={vehicleId}
         vehicle={vehicleDetails}
         yearlyMileages={yearlyMileages}
         isModalVisible={isMileageModalVisible}
@@ -125,6 +181,7 @@ export default function VehicleDetailsScreen({
 
       <ScrollView style={{ flex: 1 }}>
         <View style={styles.container}>
+          {/* ------------------ IMAGE BOX ---------------- */}
           <View style={styles.imageContainer}>
             <Image
               source={{ uri: `data:image/jpeg;base64,${vehicleDetails.image}` }}
@@ -138,47 +195,78 @@ export default function VehicleDetailsScreen({
             />
           </View>
 
-          <VehiclesInfoBox>
-            <VehicleInfoTxt
-              text={`Mileage: ${vehicleDetails.mileage} km`}
-              textColor='light'
-            />
-            <VehicleMileageTxt
-              changeMileageModalVisible={setChangeMileageModalVisible}
-              yearlyMileages={yearlyMileages}
-              vehicleDetails={vehicleDetails}
-            />
+          {/* ------------------ MILEAGE BOX & FAULTS BOX---------------- */}
+          <View style={styles.twoInfoBox}>
+            <VehiclesInfoBox>
+              <VehicleInfoTxt
+                text={`Mileage: ${vehicleDetails.current_mileage} km`}
+                textColor='light'
+              />
+              <VehicleMileageTxt
+                changeMileageModalVisible={setChangeMileageModalVisible}
+                yearlyMileages={yearlyMileages}
+                vehicleDetails={vehicleDetails}
+              />
 
-            <Text style={[styles.titleText, styles.mileageText]}>Mileage</Text>
-            <AddButton
-              onAddPress={() => {
-                setIsMileageModalVisible(true);
-              }}
-            />
-          </VehiclesInfoBox>
+              <Text style={[styles.titleText, styles.mileageText]}>
+                Mileage
+              </Text>
+              <AddButton
+                onAddPress={() => {
+                  setIsMileageModalVisible(true);
+                }}
+              />
+            </VehiclesInfoBox>
 
+            <VehiclesInfoBox
+              boxColor='yellow'
+              intensityColor={400}
+              customStyle={{ height: 155 }}
+            >
+              <Text style={[styles.titleText, styles.faultsText]}>Faults</Text>
+            </VehiclesInfoBox>
+          </View>
+
+          {/* ------------------ INFO BOX ---------------- */}
           <VehiclesInfoBox
             boxColor='magenta'
             intensityColor={600}
+            customStyle={{ height: 344, justifyContent: 'flex-start' }}
           >
             <VehicleInfoTxt
-              text={`Buy date: ${vehicleDetails.buy_date}`}
+              text={`Production year: ${vehicleDetails.producted_year}`}
+              textColor='light'
+              boxColor={{ color: 'magenta', intensity: 600 }}
+              customStyle={{ marginBottom: 7 }}
+            />
+
+            <VehicleInfoTxt
+              text={`Buy: ${vehicleDetails.buy_date}`}
               textColor='light'
               boxColor={{ color: 'magenta', intensity: 600 }}
             />
 
             <VehicleInfoTxt
-              text={`Buy price: ${vehicleDetails.buy_price} PLN`}
+              text={`Price: ${vehicleDetails.buy_price} PLN`}
               textColor='light'
               boxColor={{ color: 'magenta', intensity: 600 }}
             />
 
             <VehicleInfoTxt
-              text={`Sold date: ${
-                isSold ? vehicleDetails.sold_date : 'NOT SOLD'
-              }`}
+              text={`Mileage: ${vehicleDetails.buy_mileage} km`}
               textColor='light'
               boxColor={{ color: 'magenta', intensity: 600 }}
+            />
+
+            <VehicleInfoTxt
+              text={`Sold: ${isSold ? vehicleDetails.sold_date : 'NOT YET'}`}
+              textColor='light'
+              boxColor={
+                isSold
+                  ? { color: 'magenta', intensity: 600 }
+                  : { color: 'yellow', intensity: 400 }
+              }
+              customStyle={{ marginTop: 7 }}
             />
 
             <VehicleInfoTxt
@@ -186,11 +274,38 @@ export default function VehicleDetailsScreen({
                 isSold ? `${vehicleDetails.sold_price} PLN` : 'NOT SOLD'
               }`}
               textColor='light'
+              boxColor={
+                isSold
+                  ? { color: 'magenta', intensity: 600 }
+                  : { color: 'grey', intensity: 300 }
+              }
+              customStyle={{ marginBottom: 7 }}
+            />
+
+            <VehicleInfoTxt
+              text={`Traveled: ${traveledMileage} km`}
+              textColor='light'
               boxColor={{ color: 'magenta', intensity: 600 }}
             />
 
             <VehicleInfoTxt
-              text={`Traveled: ${vehicleDetails.mileage} km`}
+              text={`${(vehicleDetails.buy_price / differenceInYears).toFixed(
+                0
+              )} PLN / year`}
+              textColor='light'
+              boxColor={{ color: 'magenta', intensity: 600 }}
+            />
+            <VehicleInfoTxt
+              text={`${(vehicleDetails.buy_price / differenceInMonths).toFixed(
+                0
+              )} PLN / month`}
+              textColor='light'
+              boxColor={{ color: 'magenta', intensity: 600 }}
+            />
+            <VehicleInfoTxt
+              text={`${(vehicleDetails.buy_price / differenceInDays).toFixed(
+                0
+              )} PLN / day`}
               textColor='light'
               boxColor={{ color: 'magenta', intensity: 600 }}
             />
@@ -203,7 +318,16 @@ export default function VehicleDetailsScreen({
             />
           </VehiclesInfoBox>
 
+          {/* ------------------ GAS TANKS BOX ---------------- */}
           <View style={styles.gasTanksContainer}>
+            {gasTanks.map((tankDetails) => (
+              <VehicleGasTankDetails
+                key={tankDetails.id}
+                tankDetails={tankDetails}
+                fuelTypes={fuelTypes}
+              />
+            ))}
+
             <Text style={[styles.titleText, styles.gasTanksText]}>
               Gas tanks
             </Text>
@@ -214,6 +338,7 @@ export default function VehicleDetailsScreen({
             />
           </View>
 
+          {/* ------------------ EXPENSES BOX ---------------- */}
           <View style={styles.expensesContainer}>
             <Text style={[styles.titleText, styles.expensesText]}>
               Expenses
@@ -249,11 +374,20 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 16,
   },
+  twoInfoBox: {
+    height: 344,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 0,
+    margin: 0,
+  },
   gasTanksContainer: {
     position: 'relative',
 
     marginTop: 20,
     marginBottom: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
 
     width: 360,
     height: 200,
@@ -280,6 +414,10 @@ const styles = StyleSheet.create({
     left: 140,
   },
   mileageText: {
+    width: 80,
+    left: 46,
+  },
+  faultsText: {
     width: 80,
     left: 46,
   },

@@ -1,10 +1,10 @@
 import { StyleSheet, Pressable, Text, View, Image } from 'react-native';
 
 import colors from '../../utils/colors';
-import { VehicleProps } from '../../utils/types';
+import { VehiclesTab } from '../../utils/types';
 
 interface VehicleBtnProps {
-  details: VehicleProps;
+  details: VehiclesTab;
   onPress?: () => void;
 }
 
@@ -28,7 +28,7 @@ export default function VehicleBtn({ details, onPress }: VehicleBtnProps) {
         </View>
       )}
       <Text>{details.name}</Text>
-      <Text>{details.mileage} km</Text>
+      <Text>{details.current_mileage} km</Text>
       {isSold && <Text style={styles.soldText}>SOLD</Text>}
     </Pressable>
   );

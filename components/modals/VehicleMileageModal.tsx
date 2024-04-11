@@ -2,7 +2,7 @@ import React, { useState, useEffect, useReducer } from 'react';
 import { StyleSheet, Modal, View, Text } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
-import { MileagesTab, VehicleProps } from '../../utils/types';
+import { MileagesTab, VehiclesTab } from '../../utils/types';
 
 import PrimaryInput from '../ui/inputs/PrimaryInput';
 
@@ -20,13 +20,15 @@ type FormReducerAction =
   | { type: 'SET_MILEAGE'; value: number }
   | { type: 'RESET_STATE' };
 
+const currentYear = new Date().getFullYear();
+
 const formReducer = (state: FormReducerState, action: FormReducerAction) => {
   switch (action.type) {
     case 'SET_YEAR':
       return {
         ...state,
         yearValue: action.value,
-        yearValid: action.value >= 1900,
+        yearValid: action.value >= 1890 && action.value <= currentYear,
       };
     case 'SET_MILEAGE':
       return {
@@ -47,15 +49,13 @@ const formReducer = (state: FormReducerState, action: FormReducerAction) => {
 };
 
 interface VehicleMileageProps {
-  vehicleId: number;
-  vehicle: VehicleProps;
+  vehicle: VehiclesTab;
   yearlyMileages: MileagesTab[];
   isModalVisible: boolean;
   onModal: (visible: boolean) => void;
 }
 
 export default function VehicleMileageModal({
-  vehicleId,
   vehicle,
   yearlyMileages,
   isModalVisible,
@@ -103,7 +103,7 @@ export default function VehicleMileageModal({
         await db
           .runAsync(
             `INSERT INTO mileages (vehicle_id, year, mileage) VALUES (?, ?, ?);`,
-            [vehicleId, year, mileage]
+            [vehicle.id, year, mileage]
           )
           .then(() => closeModal())
           .catch((error) => console.error(error));
@@ -111,30 +111,32 @@ export default function VehicleMileageModal({
     }
   };
 
-  const maxYear = new Date().getFullYear();
   const minYear = parseInt(vehicle.buy_date.split('-')[2]);
 
   const yearInputHandler = (text: string) => {
     const yearInput = parseInt(text);
 
-    if (yearInput >= minYear && yearInput <= maxYear) {
+    if (yearInput >= minYear && yearInput <= currentYear) {
       dispatchForm({ type: 'SET_YEAR', value: yearInput });
     } else {
       dispatchForm({ type: 'SET_YEAR', value: -1 });
     }
   };
 
-  const yearlyMileagesSum = yearlyMileages.reduce(
-    (accumulator, year) => accumulator + year.mileage,
-    0
-  );
-  const maxMileages = vehicle.mileage - yearlyMileagesSum;
+  let minMileage = 0;
+  for (const key of yearlyMileages) {
+    if (key.mileage > minMileage) {
+      minMileage = key.mileage;
+    }
+  }
 
   const mileageInputHandler = (text: string) => {
     const inputMileage = parseFloat(text);
 
-    if (inputMileage <= maxMileages) {
+    if (inputMileage >= minMileage && inputMileage >= vehicle.buy_mileage) {
       dispatchForm({ type: 'SET_MILEAGE', value: inputMileage });
+
+      console.log(minMileage, vehicle.buy_mileage);
     } else {
       dispatchForm({ type: 'SET_MILEAGE', value: -1 });
     }
