@@ -34,6 +34,7 @@ export default function BottomTabNavigator() {
             />
           ),
           title: 'Vehicle',
+          unmountOnBlur: true,
         }}
       />
       <Tab.Screen
@@ -48,6 +49,7 @@ export default function BottomTabNavigator() {
               color={color}
             />
           ),
+          unmountOnBlur: true,
         }}
       />
       <Tab.Screen
@@ -62,6 +64,7 @@ export default function BottomTabNavigator() {
               color={color}
             />
           ),
+          unmountOnBlur: true,
         }}
       />
       <Tab.Screen
@@ -75,6 +78,7 @@ export default function BottomTabNavigator() {
               color={color}
             />
           ),
+          unmountOnBlur: true,
         }}
       />
     </Tab.Navigator>
