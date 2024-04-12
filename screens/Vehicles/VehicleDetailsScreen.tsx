@@ -29,7 +29,7 @@ import AddButton from '../../components/ui/buttons/AddButton';
 import VehicleImageModal from '../../components/modals/VehicleImageModal';
 import VehicleInfoModal from '../../components/modals/VehicleInfoModal';
 import VehicleMileageModal from '../../components/modals/VehicleMileageModal';
-import VehicleGasTankAddModal from '../../components/modals/VehicleGasTankAddModal';
+import GasTankModal from '../../components/modals/GasTankModal';
 import VehicleMileageTxt from '../../components/Vehicles/VehicleMileageTxt';
 import VehicleGasTankDetails from '../../components/Vehicles/VehicleGasTankDetails';
 
@@ -184,7 +184,8 @@ export default function VehicleDetailsScreen({
         onModal={setIsInfoModalVisible}
         vehicle={vehicleDetails}
       />
-      <VehicleGasTankAddModal
+      <GasTankModal
+        vehicle={vehicleDetails}
         isModalVisible={isGasTankAddModalVisible}
         onModal={setIsGasTankAddModalVisible}
       />
