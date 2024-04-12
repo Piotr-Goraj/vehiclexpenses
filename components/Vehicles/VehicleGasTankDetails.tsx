@@ -16,6 +16,9 @@ export default function VehicleGasTankDetails({
 }: VehicleGasTankDetailsProps) {
   const db = useSQLiteContext();
 
+  const traveled = tankDetails.mileage_after - tankDetails.mileage_before;
+  const consumption = (100 * tankDetails.capacity) / traveled;
+
   return (
     <View style={styles.outerContainer}>
       <View style={styles.innerContainer}>
@@ -29,10 +32,8 @@ export default function VehicleGasTankDetails({
       </View>
 
       <View style={[styles.innerContainer, { justifyContent: 'space-evenly' }]}>
-        <Text style={styles.text}>{`Traveled: ${
-          tankDetails.mileage_after - tankDetails.mileage_before
-        } km`}</Text>
-        <Text style={styles.text}>{`Consumption: ${'4.38 l/100 km'}`}</Text>
+        <Text style={styles.text}>{`Traveled: ${traveled} km`}</Text>
+        <Text style={styles.text}>{`Consumption: ${consumption}/100 km`}</Text>
       </View>
     </View>
   );
