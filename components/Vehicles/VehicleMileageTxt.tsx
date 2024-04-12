@@ -41,7 +41,10 @@ export default function VehicleMileageTxt({
         year={yearMileage}
       />
 
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView
+        nestedScrollEnabled={true}
+        style={{ flex: 1 }}
+      >
         <View
           style={{
             justifyContent: 'flex-start',

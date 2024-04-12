@@ -29,7 +29,7 @@ export default function VehicleInfoTxt({
         customStyle,
       ]}
     >
-      <Text style={{ color: fontColor }}>{text}</Text>
+      <Text style={{ color: fontColor, textAlign: 'center' }}>{text}</Text>
     </View>
   );
 }

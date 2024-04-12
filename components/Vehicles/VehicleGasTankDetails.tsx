@@ -19,20 +19,20 @@ export default function VehicleGasTankDetails({
   return (
     <View style={styles.outerContainer}>
       <View style={styles.innerContainer}>
-        <Text>{`${tankDetails.gas_station}`}</Text>
-        <Text>{`${
+        <Text style={styles.text}>{`${tankDetails.gas_station}`}</Text>
+        <Text style={styles.text}>{`${
           fuelTypes.find((type) => type.id === tankDetails.fuel_type)?.type_name
         }`}</Text>
-        <Text>{`${tankDetails.capacity} l`}</Text>
-        <Text>{`${tankDetails.price_per_liter} PLN`}</Text>
-        <Text>{`${tankDetails.buy_date}`}</Text>
+        <Text style={styles.text}>{`${tankDetails.capacity} l`}</Text>
+        <Text style={styles.text}>{`${tankDetails.price_per_liter} PLN`}</Text>
+        <Text style={styles.text}>{`${tankDetails.buy_date}`}</Text>
       </View>
 
       <View style={[styles.innerContainer, { justifyContent: 'space-evenly' }]}>
-        <Text>{`Traveled: ${
+        <Text style={styles.text}>{`Traveled: ${
           tankDetails.mileage_after - tankDetails.mileage_before
         } km`}</Text>
-        <Text>{`Consumption: ${'4.38 l/100 km'}`}</Text>
+        <Text style={styles.text}>{`Consumption: ${'4.38 l/100 km'}`}</Text>
       </View>
     </View>
   );
@@ -46,8 +46,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 8,
 
-    borderColor: colors.red[400],
-    borderWidth: 2,
+    backgroundColor: colors.red[400],
+    // borderWidth: 2,
     borderRadius: 16,
   },
   innerContainer: {
@@ -55,5 +55,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
 
     marginVertical: 2,
+  },
+  text: {
+    color: colors.fontLight,
   },
 });

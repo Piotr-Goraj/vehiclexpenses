@@ -1,5 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
-import { ScrollView, StyleSheet, View, Text, Image } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  FlatList,
+  LogBox,
+} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
@@ -12,6 +20,8 @@ import {
 } from '../../utils/types';
 import colors from '../../utils/colors';
 
+import useDateDelta from '../../hooks/useDateDelta';
+
 import VehiclesInfoBox from '../../components/Vehicles/VehiclesInfoBox';
 import VehicleInfoTxt from '../../components/Vehicles/VehicleInfoTxt';
 import EditButton from '../../components/ui/buttons/EditButton';
@@ -21,7 +31,6 @@ import VehicleInfoModal from '../../components/modals/VehicleInfoModal';
 import VehicleMileageModal from '../../components/modals/VehicleMileageModal';
 import VehicleGasTankAddModal from '../../components/modals/VehicleGasTankAddModal';
 import VehicleMileageTxt from '../../components/Vehicles/VehicleMileageTxt';
-import useDateDelta from '../../hooks/useDateDelta';
 import VehicleGasTankDetails from '../../components/Vehicles/VehicleGasTankDetails';
 
 export default function VehicleDetailsScreen({
@@ -55,30 +64,8 @@ export default function VehicleDetailsScreen({
   });
   const [yearlyMileages, setYearlyMileages] = useState<MileagesTab[]>([]);
   const [traveledMileage, setTraveledMileage] = useState<number>(0);
-  const [gasTanks, setGasTanks] = useState<GasTankTab[]>([
-    {
-      id: 0,
-      vehicle_id: 0,
-      gas_station: 'Shell',
-      fuel_type: 2,
-      price_per_liter: 6.52,
-      capacity: 6.74,
-      mileage_before: 51000,
-      mileage_after: 51136,
-      buy_date: '14-03-2024',
-    },
-    {
-      id: 1,
-      vehicle_id: 1,
-      gas_station: 'Orlen',
-      fuel_type: 1,
-      price_per_liter: 6.72,
-      capacity: 2.32,
-      mileage_before: 51136,
-      mileage_after: 51240,
-      buy_date: '16-03-2024',
-    },
-  ]);
+  const [gasTanks, setGasTanks] = useState<GasTankTab[]>([]);
+  const [consumption, setConsumption] = useState<number>(0.0);
   const [fuelTypes, setFuelTypes] = useState<FuelTypeTab[]>([]);
   const [isSold, setIsSold] = useState<boolean>(false);
 
@@ -112,6 +99,21 @@ export default function VehicleDetailsScreen({
     setGasTanks(result);
   }
 
+  const meanConsumption = () => {
+    if (traveledMileage > 0) {
+      const fullTankCapacity = gasTanks.reduce(
+        (accumulator, tank) => accumulator + tank.capacity,
+        0
+      );
+
+      const mean = parseFloat(
+        ((100 * fullTankCapacity) / traveledMileage).toFixed(2)
+      );
+
+      setConsumption(mean);
+    }
+  };
+
   async function getMeleagesVehicleId(id: number) {
     const result = await db.getAllAsync<MileagesTab>(
       `SELECT * FROM mileages WHERE vehicle_id = ? ORDER BY year DESC;`,
@@ -131,12 +133,10 @@ export default function VehicleDetailsScreen({
   useEffect(() => {
     db.withTransactionAsync(async () => {
       await getVehiclesById(vehicleId);
-      // await getGasByVehicleId(vehicleId);
+      await getGasByVehicleId(vehicleId);
       await getMeleagesVehicleId(vehicleId);
       await getFuelTypes();
     });
-
-    setIsSold(vehicleDetails.is_sold === 1 ? true : false);
   }, [
     isImageModalVisible,
     isMileageModalVisible,
@@ -146,15 +146,25 @@ export default function VehicleDetailsScreen({
   ]);
 
   useEffect(() => {
-    let maxMileage = 0;
-    for (const key of yearlyMileages) {
-      if (key.mileage > maxMileage) {
-        maxMileage = key.mileage;
+    const timeout = setTimeout(() => {
+      let maxMileage = 0;
+      for (const key of yearlyMileages) {
+        if (key.mileage > maxMileage) {
+          maxMileage = key.mileage;
+        }
       }
-    }
 
-    setTraveledMileage(maxMileage - vehicleDetails.current_mileage);
+      setIsSold(vehicleDetails.is_sold === 1 ? true : false);
+      setTraveledMileage(maxMileage - vehicleDetails.current_mileage);
+      meanConsumption();
+    }, 500);
+
+    return () => clearTimeout(timeout);
   }, [yearlyMileages]);
+
+  useEffect(() => {
+    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+  }, []);
 
   return (
     <>
@@ -233,83 +243,94 @@ export default function VehicleDetailsScreen({
             intensityColor={600}
             customStyle={{ height: 344, justifyContent: 'flex-start' }}
           >
-            <VehicleInfoTxt
-              text={`Production year: ${vehicleDetails.producted_year}`}
-              textColor='light'
-              boxColor={{ color: 'magenta', intensity: 600 }}
-              customStyle={{ marginBottom: 7 }}
-            />
+            <ScrollView
+              nestedScrollEnabled={true}
+              style={{ flex: 1 }}
+            >
+              <VehicleInfoTxt
+                text={`Production year: ${vehicleDetails.producted_year}`}
+                textColor='light'
+                boxColor={{ color: 'magenta', intensity: 600 }}
+                customStyle={{ marginBottom: 7 }}
+              />
 
-            <VehicleInfoTxt
-              text={`Buy: ${vehicleDetails.buy_date}`}
-              textColor='light'
-              boxColor={{ color: 'magenta', intensity: 600 }}
-            />
+              <VehicleInfoTxt
+                text={`Buy: ${vehicleDetails.buy_date}`}
+                textColor='light'
+                boxColor={{ color: 'magenta', intensity: 600 }}
+              />
 
-            <VehicleInfoTxt
-              text={`Price: ${vehicleDetails.buy_price} PLN`}
-              textColor='light'
-              boxColor={{ color: 'magenta', intensity: 600 }}
-            />
+              <VehicleInfoTxt
+                text={`Price: ${vehicleDetails.buy_price} PLN`}
+                textColor='light'
+                boxColor={{ color: 'magenta', intensity: 600 }}
+              />
 
-            <VehicleInfoTxt
-              text={`Mileage: ${vehicleDetails.buy_mileage} km`}
-              textColor='light'
-              boxColor={{ color: 'magenta', intensity: 600 }}
-            />
+              <VehicleInfoTxt
+                text={`Mileage: ${vehicleDetails.buy_mileage} km`}
+                textColor='light'
+                boxColor={{ color: 'magenta', intensity: 600 }}
+              />
 
-            <VehicleInfoTxt
-              text={`Sold: ${isSold ? vehicleDetails.sold_date : 'NOT YET'}`}
-              textColor='light'
-              boxColor={
-                isSold
-                  ? { color: 'magenta', intensity: 600 }
-                  : { color: 'yellow', intensity: 400 }
-              }
-              customStyle={{ marginTop: 7 }}
-            />
+              <VehicleInfoTxt
+                text={`Sold: ${isSold ? vehicleDetails.sold_date : 'NOT YET'}`}
+                textColor='light'
+                boxColor={
+                  isSold
+                    ? { color: 'yellow', intensity: 400 }
+                    : { color: 'magenta', intensity: 600 }
+                }
+                customStyle={{ marginTop: 7 }}
+              />
 
-            <VehicleInfoTxt
-              text={`Sold price: ${
-                isSold ? `${vehicleDetails.sold_price} PLN` : 'NOT SOLD'
-              }`}
-              textColor='light'
-              boxColor={
-                isSold
-                  ? { color: 'magenta', intensity: 600 }
-                  : { color: 'grey', intensity: 300 }
-              }
-              customStyle={{ marginBottom: 7 }}
-            />
+              <VehicleInfoTxt
+                text={`Sold price: ${
+                  isSold ? `${vehicleDetails.sold_price} PLN` : 'NOT SOLD'
+                }`}
+                textColor='light'
+                boxColor={
+                  isSold
+                    ? { color: 'yellow', intensity: 400 }
+                    : { color: 'grey', intensity: 300 }
+                }
+                customStyle={{ marginBottom: 7 }}
+              />
 
-            <VehicleInfoTxt
-              text={`Traveled: ${traveledMileage} km`}
-              textColor='light'
-              boxColor={{ color: 'magenta', intensity: 600 }}
-            />
+              <VehicleInfoTxt
+                text={`Traveled: ${traveledMileage} km`}
+                textColor='light'
+                boxColor={{ color: 'red', intensity: 400 }}
+              />
 
-            <VehicleInfoTxt
-              text={`${(vehicleDetails.buy_price / differenceInYears).toFixed(
-                0
-              )} PLN / year`}
-              textColor='light'
-              boxColor={{ color: 'magenta', intensity: 600 }}
-            />
-            <VehicleInfoTxt
-              text={`${(vehicleDetails.buy_price / differenceInMonths).toFixed(
-                0
-              )} PLN / month`}
-              textColor='light'
-              boxColor={{ color: 'magenta', intensity: 600 }}
-            />
-            <VehicleInfoTxt
-              text={`${(vehicleDetails.buy_price / differenceInDays).toFixed(
-                0
-              )} PLN / day`}
-              textColor='light'
-              boxColor={{ color: 'magenta', intensity: 600 }}
-            />
+              <VehicleInfoTxt
+                text={`Mean consumption: ${consumption} l/100 km`}
+                textColor='light'
+                boxColor={{ color: 'red', intensity: 400 }}
+                customStyle={{ marginBottom: 7 }}
+              />
 
+              <VehicleInfoTxt
+                text={`${(vehicleDetails.buy_price / differenceInYears).toFixed(
+                  0
+                )} PLN / year`}
+                textColor='light'
+                boxColor={{ color: 'magenta', intensity: 600 }}
+              />
+              <VehicleInfoTxt
+                text={`${(
+                  vehicleDetails.buy_price / differenceInMonths
+                ).toFixed(0)} PLN / month`}
+                textColor='light'
+                boxColor={{ color: 'magenta', intensity: 600 }}
+              />
+              <VehicleInfoTxt
+                text={`${(vehicleDetails.buy_price / differenceInDays).toFixed(
+                  0
+                )} PLN / day`}
+                textColor='light'
+                boxColor={{ color: 'magenta', intensity: 600 }}
+              />
+            </ScrollView>
             <Text style={[styles.titleText, styles.infoText]}>Info</Text>
             <EditButton
               onEditPress={() => {
@@ -320,13 +341,19 @@ export default function VehicleDetailsScreen({
 
           {/* ------------------ GAS TANKS BOX ---------------- */}
           <View style={styles.gasTanksContainer}>
-            {gasTanks.map((tankDetails) => (
-              <VehicleGasTankDetails
-                key={tankDetails.id}
-                tankDetails={tankDetails}
-                fuelTypes={fuelTypes}
-              />
-            ))}
+            <FlatList
+              nestedScrollEnabled={true}
+              data={gasTanks}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={(
+                { item } // użyj destrukturyzacji, aby uzyskać dostęp do 'item'
+              ) => (
+                <VehicleGasTankDetails
+                  tankDetails={item} // przekaż 'item' do 'tankDetails'
+                  fuelTypes={fuelTypes}
+                />
+              )}
+            />
 
             <Text style={[styles.titleText, styles.gasTanksText]}>
               Gas tanks
