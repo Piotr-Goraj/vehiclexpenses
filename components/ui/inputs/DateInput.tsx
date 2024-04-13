@@ -37,7 +37,8 @@ export default function DateInput({
     const dayToTen = day < 10 ? `0${day}` : day;
     const monthToTen = month < 10 ? `0${month}` : month;
 
-    const date = `${dayToTen}-${monthToTen}-${year}`;
+    // const date = `${dayToTen}-${monthToTen}-${year}`;
+    const date = `${year}-${monthToTen}-${dayToTen}`;
 
     onDataSet(date);
   };
@@ -60,9 +61,10 @@ export default function DateInput({
           returnKeyType='next'
           onSubmitEditing={() => focusNextInput(0)}
           maxLength={2}
-          onChangeText={(text) =>
-            setDay(isNaN(parseInt(text)) ? defaultDay : parseInt(text))
-          }
+          onChangeText={(text) => {
+            setDay(isNaN(parseInt(text)) ? defaultDay : parseInt(text));
+            dateSetHandler();
+          }}
           onEndEditing={dateSetHandler}
         />
         <TextInput
@@ -79,9 +81,10 @@ export default function DateInput({
           returnKeyType='next'
           onSubmitEditing={() => focusNextInput(1)}
           maxLength={2}
-          onChangeText={(text) =>
-            setMonth(isNaN(parseInt(text)) ? defaultMonth : parseInt(text))
-          }
+          onChangeText={(text) => {
+            setMonth(isNaN(parseInt(text)) ? defaultMonth : parseInt(text));
+            dateSetHandler();
+          }}
           onEndEditing={dateSetHandler}
         />
         <TextInput
@@ -101,9 +104,10 @@ export default function DateInput({
             dateSetHandler();
           }}
           maxLength={4}
-          onChangeText={(text) =>
-            setYear(isNaN(parseInt(text)) ? defaultYear : parseInt(text))
-          }
+          onChangeText={(text) => {
+            setYear(isNaN(parseInt(text)) ? defaultYear : parseInt(text));
+            dateSetHandler();
+          }}
           onEndEditing={dateSetHandler}
         />
       </View>

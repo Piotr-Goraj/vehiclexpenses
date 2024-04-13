@@ -28,6 +28,9 @@ interface FormState {
   buyMileageValue: number;
   buyMileageValid: boolean | null;
 
+  currentMileageValue: number;
+  currentMileageValid: boolean | null;
+
   soldDateValue: string;
   soldDateValid: boolean | null;
 
@@ -42,6 +45,7 @@ type FormAction =
   | { type: 'SET_BUY_DATE'; value: string }
   | { type: 'SET_BUY_PRICE'; value: number }
   | { type: 'SET_BUY_MILEAGE'; value: number }
+  | { type: 'SET_CURRENT_MILEAGE'; value: number }
   | { type: 'SET_SOLD_DATE'; value: string }
   | { type: 'SET_SOLD_PRICE'; value: number }
   | { type: 'RESET_STATE' };
@@ -89,6 +93,12 @@ const formReducer = (state: FormState, action: FormAction) => {
         buyMileageValue: action.value,
         buyMileageValid: action.value >= 0,
       };
+    case 'SET_CURRENT_MILEAGE':
+      return {
+        ...state,
+        currentMileageValue: action.value,
+        currentMileageValid: action.value >= state.buyMileageValue,
+      };
     case 'SET_SOLD_DATE':
       return {
         ...state,
@@ -120,6 +130,9 @@ const formReducer = (state: FormState, action: FormAction) => {
 
         buyMileageValue: -1,
         buyMileageValid: null,
+
+        currentMileageValue: -1,
+        currentMileageValid: null,
 
         soldDateValue: '',
         soldDateValid: null,
@@ -164,6 +177,9 @@ export default function VehicleInfoModal({
     buyMileageValue: -1,
     buyMileageValid: null,
 
+    currentMileageValue: -1,
+    currentMileageValid: null,
+
     soldDateValue: '',
     soldDateValid: null,
 
@@ -194,6 +210,10 @@ export default function VehicleInfoModal({
       type: 'SET_BUY_MILEAGE',
       value: vehicle.buy_mileage,
     });
+    dispatchForm({
+      type: 'SET_CURRENT_MILEAGE',
+      value: vehicle.current_mileage,
+    });
 
     return () => {
       setIsSold(vehicle.is_sold === 0 ? false : true);
@@ -223,6 +243,7 @@ export default function VehicleInfoModal({
       buyDateValue,
       buyPriceValue,
       buyMileageValue,
+      currentMileageValue,
       soldPriceValue,
       soldDateValue,
     } = formState;
@@ -234,6 +255,7 @@ export default function VehicleInfoModal({
       buyDateValid,
       buyPriceValid,
       buyMileageValid,
+      currentMileageValid,
       soldPriceValid,
       soldDateValid,
     } = formState;
@@ -246,7 +268,8 @@ export default function VehicleInfoModal({
       vehicleModelValid &&
       buyDateValid &&
       buyPriceValid &&
-      buyMileageValid;
+      buyMileageValid &&
+      currentMileageValid;
 
     const soldUpdate = soldPriceValid && soldDateValid;
 
@@ -260,6 +283,7 @@ export default function VehicleInfoModal({
       dispatchForm({ type: 'SET_BUY_DATE', value: buyDateValue });
       dispatchForm({ type: 'SET_BUY_PRICE', value: buyPriceValue });
       dispatchForm({ type: 'SET_BUY_MILEAGE', value: buyMileageValue });
+      dispatchForm({ type: 'SET_CURRENT_MILEAGE', value: currentMileageValue });
     } else {
       // console.log(
       // vehicleNameValue,
@@ -274,7 +298,7 @@ export default function VehicleInfoModal({
 
       await db
         .runAsync(
-          `UPDATE vehicles SET producted_year = ?, name = ?, model = ?, buy_date = ?, buy_price = ?, buy_mileage = ?, is_sold = ?, sold_price = ?, sold_date = ?  WHERE id = ?;`,
+          `UPDATE vehicles SET producted_year = ?, name = ?, model = ?, buy_date = ?, buy_price = ?, buy_mileage = ?, current_mileage = ?, is_sold = ?, sold_price = ?, sold_date = ?  WHERE id = ?;`,
           [
             productionYearValue,
             vehicleNameValue,
@@ -282,6 +306,7 @@ export default function VehicleInfoModal({
             buyDateValue,
             buyPriceValue,
             buyMileageValue,
+            currentMileageValue,
             vehicleIsSold,
             soldPriceValue,
             soldDateValue,
@@ -360,7 +385,7 @@ export default function VehicleInfoModal({
             }
           />
           <PrimaryInput
-            placeholder={`Mileage: ${vehicle.buy_mileage}`}
+            placeholder={`Buy mileage: ${vehicle.buy_mileage}`}
             inputMode='decimal'
             keyboardType='number-pad'
             value={formState.buyMileageValue.toString()}
@@ -368,6 +393,20 @@ export default function VehicleInfoModal({
             onTextChange={(text) =>
               dispatchForm({
                 type: 'SET_BUY_MILEAGE',
+                value: parseFloat(text),
+              })
+            }
+          />
+
+          <PrimaryInput
+            placeholder={`Current mileage: ${vehicle.current_mileage}`}
+            inputMode='decimal'
+            keyboardType='number-pad'
+            value={formState.currentMileageValue.toString()}
+            isValid={formState.currentMileageValid}
+            onTextChange={(text) =>
+              dispatchForm({
+                type: 'SET_CURRENT_MILEAGE',
                 value: parseFloat(text),
               })
             }

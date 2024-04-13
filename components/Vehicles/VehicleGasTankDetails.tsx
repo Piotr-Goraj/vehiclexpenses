@@ -26,14 +26,18 @@ export default function VehicleGasTankDetails({
         <Text style={styles.text}>{`${
           fuelTypes.find((type) => type.id === tankDetails.fuel_type)?.type_name
         }`}</Text>
-        <Text style={styles.text}>{`${tankDetails.capacity} l`}</Text>
+        <Text style={styles.text}>{`${tankDetails.capacity.toFixed(
+          2
+        )} l`}</Text>
         <Text style={styles.text}>{`${tankDetails.price_per_liter} PLN`}</Text>
         <Text style={styles.text}>{`${tankDetails.buy_date}`}</Text>
       </View>
 
       <View style={[styles.innerContainer, { justifyContent: 'space-evenly' }]}>
         <Text style={styles.text}>{`Traveled: ${traveled} km`}</Text>
-        <Text style={styles.text}>{`Consumption: ${consumption}/100 km`}</Text>
+        <Text style={styles.text}>{`Consumption: ${consumption.toFixed(
+          2
+        )}/100 km`}</Text>
       </View>
     </View>
   );

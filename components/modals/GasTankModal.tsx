@@ -161,6 +161,17 @@ export default function GasTankModal({
   useEffect(() => {
     setIsVisible(isModalVisible);
 
+    if (vehicle) {
+      dispatchForm({
+        type: 'SET_VEHICLE',
+        value: {
+          id: vehicle.id,
+          name: `${vehicle.name} ${vehicle.model}`,
+          mileageBefore: vehicle.current_mileage,
+        },
+      });
+    }
+
     return () => {
       dispatchForm({ type: 'RESET_STATE' });
     };

@@ -1,4 +1,4 @@
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, Pressable, ViewStyle } from 'react-native';
 
 import { Entypo } from '@expo/vector-icons';
 
@@ -6,14 +6,19 @@ import colors from '../../../utils/colors';
 
 interface AddButtonProps {
   onAddPress: () => void;
+  absolutePosition?: ViewStyle;
 }
 
-export default function AddButton({ onAddPress }: AddButtonProps) {
+export default function AddButton({
+  onAddPress,
+  absolutePosition,
+}: AddButtonProps) {
   return (
     <Pressable
       onPress={onAddPress}
       style={({ pressed }) => [
         styles.editBtn,
+        absolutePosition,
         pressed && styles.editBtnPressed,
       ]}
     >

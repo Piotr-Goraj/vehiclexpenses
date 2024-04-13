@@ -7,6 +7,8 @@ export type ColorIntensity = {
   intensity: 30 | 60 | 80 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 };
 
+export type ButtonType = 'add' | 'edit';
+
 // ************** navigators types ************** \\
 
 export type RootStackParamList = {

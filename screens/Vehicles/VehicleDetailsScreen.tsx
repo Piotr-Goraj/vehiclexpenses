@@ -12,6 +12,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import {
+  ExpenseTypeTab,
+  ExpensesTab,
   FuelTypeTab,
   GasTankTab,
   MileagesTab,
@@ -32,6 +34,9 @@ import VehicleMileageModal from '../../components/modals/VehicleMileageModal';
 import GasTankModal from '../../components/modals/GasTankModal';
 import VehicleMileageTxt from '../../components/Vehicles/VehicleMileageTxt';
 import VehicleGasTankDetails from '../../components/Vehicles/VehicleGasTankDetails';
+import VehicleExpenseDetails from '../../components/Vehicles/VehicleExpenseDetails';
+import GasTanksContainer from '../../components/Gas/GasTanksContainer';
+import DetailsCard from '../../components/ui/cards/DetailsCard';
 
 export default function VehicleDetailsScreen({
   route,
@@ -65,9 +70,12 @@ export default function VehicleDetailsScreen({
   const [yearlyMileages, setYearlyMileages] = useState<MileagesTab[]>([]);
   const [traveledMileage, setTraveledMileage] = useState<number>(0);
   const [gasTanks, setGasTanks] = useState<GasTankTab[]>([]);
-  const [consumption, setConsumption] = useState<number>(0.0);
   const [fuelTypes, setFuelTypes] = useState<FuelTypeTab[]>([]);
+  const [expenses, setExpenses] = useState<ExpensesTab[]>([]);
+  const [expenseTypes, setExpenseTypes] = useState<ExpenseTypeTab[]>([]);
   const [isSold, setIsSold] = useState<boolean>(false);
+  const [consumption, setConsumption] = useState<number>(0.0);
+  const [fullCosts, setFullCosts] = useState<number>();
 
   const [differenceInDays, differenceInMonths, differenceInYears] =
     useDateDelta(vehicleDetails.buy_date);
@@ -114,12 +122,36 @@ export default function VehicleDetailsScreen({
     }
   };
 
-  async function getMeleagesVehicleId(id: number) {
+  const sumExpenses = () => {
+    const sumExpense = expenses.reduce(
+      (accumulator, expense) => accumulator + expense.price,
+      0.0
+    );
+    setFullCosts(sumExpense + vehicleDetails.buy_price);
+  };
+
+  async function getMeleagesVehicle(id: number) {
     const result = await db.getAllAsync<MileagesTab>(
       `SELECT * FROM mileages WHERE vehicle_id = ? ORDER BY year DESC;`,
       [id]
     );
     setYearlyMileages(result);
+  }
+
+  async function getExpensesVehicle(id: number) {
+    const result = await db.getAllAsync<ExpensesTab>(
+      `SELECT * FROM expenses WHERE vehicle_id = ? ORDER BY date DESC;`,
+      [id]
+    );
+    setExpenses(result);
+  }
+
+  async function getExpenseTypes() {
+    const result = await db.getAllAsync<FuelTypeTab>(
+      `SELECT * FROM expense_type;`,
+      []
+    );
+    setExpenseTypes(result);
   }
 
   async function getFuelTypes() {
@@ -134,7 +166,9 @@ export default function VehicleDetailsScreen({
     db.withTransactionAsync(async () => {
       await getVehiclesById(vehicleId);
       await getGasByVehicleId(vehicleId);
-      await getMeleagesVehicleId(vehicleId);
+      await getMeleagesVehicle(vehicleId);
+      await getExpensesVehicle(vehicleId);
+      await getExpenseTypes();
       await getFuelTypes();
     });
   }, [
@@ -157,10 +191,11 @@ export default function VehicleDetailsScreen({
       setIsSold(vehicleDetails.is_sold === 1 ? true : false);
       setTraveledMileage(maxMileage - vehicleDetails.current_mileage);
       meanConsumption();
+      sumExpenses();
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [yearlyMileages]);
+  }, [yearlyMileages, expenses]);
 
   useEffect(() => {
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
@@ -193,22 +228,37 @@ export default function VehicleDetailsScreen({
       <ScrollView style={{ flex: 1 }}>
         <View style={styles.container}>
           {/* ------------------ IMAGE BOX ---------------- */}
-          <View style={styles.imageContainer}>
+
+          <DetailsCard
+            styleCustom={{ paddingHorizontal: 0, paddingVertical: 0 }}
+            cardColor={{ color: 'red', intensity: 400 }}
+            title='Image'
+            titlePosition={{ width: 80, left: 140 }}
+            buttonType='edit'
+            buttonColor={{ color: 'yellow', intensity: 400 }}
+            onPress={() => {
+              setIsImageModalVisible(true);
+            }}
+          >
             <Image
               source={{ uri: `data:image/jpeg;base64,${vehicleDetails.image}` }}
               style={styles.imagePhoto}
             />
-            <Text style={[styles.titleText, styles.imageText]}>Image</Text>
-            <EditButton
-              onEditPress={() => {
-                setIsImageModalVisible(true);
-              }}
-            />
-          </View>
+          </DetailsCard>
 
           {/* ------------------ MILEAGE BOX & FAULTS BOX---------------- */}
           <View style={styles.twoInfoBox}>
-            <VehiclesInfoBox>
+            <DetailsCard
+              styleCustom={{ height: 160, width: 172, marginBottom: 12 }}
+              cardColor={{ color: 'blue', intensity: 400 }}
+              title='Mileages'
+              titlePosition={{ width: 80, left: 46 }}
+              buttonType='add'
+              buttonColor={{ color: 'green', intensity: 400 }}
+              onPress={() => {
+                setIsMileageModalVisible(true);
+              }}
+            >
               <VehicleInfoTxt
                 text={`Mileage: ${vehicleDetails.current_mileage} km`}
                 textColor='light'
@@ -218,31 +268,39 @@ export default function VehicleDetailsScreen({
                 yearlyMileages={yearlyMileages}
                 vehicleDetails={vehicleDetails}
               />
+            </DetailsCard>
 
-              <Text style={[styles.titleText, styles.mileageText]}>
-                Mileage
-              </Text>
-              <AddButton
-                onAddPress={() => {
-                  setIsMileageModalVisible(true);
-                }}
-              />
-            </VehiclesInfoBox>
-
-            <VehiclesInfoBox
-              boxColor='yellow'
-              intensityColor={400}
-              customStyle={{ height: 155 }}
+            <DetailsCard
+              styleCustom={{
+                height: 160,
+                width: 172,
+                marginTop: 12,
+                marginBottom: 20,
+              }}
+              cardColor={{ color: 'yellow', intensity: 400 }}
+              title='Faults'
+              titlePosition={{ width: 80, left: 46 }}
+              buttonType='add'
+              buttonColor={{ color: 'green', intensity: 400 }}
+              onPress={() => {}}
             >
-              <Text style={[styles.titleText, styles.faultsText]}>Faults</Text>
-            </VehiclesInfoBox>
+              <Text>Some silly text</Text>
+            </DetailsCard>
           </View>
 
           {/* ------------------ INFO BOX ---------------- */}
-          <VehiclesInfoBox
-            boxColor='magenta'
-            intensityColor={600}
-            customStyle={{ height: 344, justifyContent: 'flex-start' }}
+          <DetailsCard
+            styleCustom={{
+              height: 344,
+              width: 172,
+              justifyContent: 'flex-start',
+            }}
+            cardColor={{ color: 'magenta', intensity: 600 }}
+            title='Info'
+            titlePosition={{ width: 50, left: 61 }}
+            buttonType='edit'
+            buttonColor={{ color: 'yellow', intensity: 400 }}
+            onPress={() => setIsInfoModalVisible(true)}
           >
             <ScrollView
               nestedScrollEnabled={true}
@@ -307,6 +365,11 @@ export default function VehicleDetailsScreen({
                 text={`Mean consumption: ${consumption} l/100 km`}
                 textColor='light'
                 boxColor={{ color: 'red', intensity: 400 }}
+              />
+              <VehicleInfoTxt
+                text={`Full cost: ${fullCosts} PLN`}
+                textColor='light'
+                boxColor={{ color: 'red', intensity: 400 }}
                 customStyle={{ marginBottom: 7 }}
               />
 
@@ -332,47 +395,39 @@ export default function VehicleDetailsScreen({
                 boxColor={{ color: 'magenta', intensity: 600 }}
               />
             </ScrollView>
-            <Text style={[styles.titleText, styles.infoText]}>Info</Text>
-            <EditButton
-              onEditPress={() => {
-                setIsInfoModalVisible(true);
-              }}
-            />
-          </VehiclesInfoBox>
+          </DetailsCard>
 
           {/* ------------------ GAS TANKS BOX ---------------- */}
-          <View style={styles.gasTanksContainer}>
+          <GasTanksContainer
+            gasTanks={gasTanks}
+            fuelTypes={fuelTypes}
+            onPress={setIsGasTankAddModalVisible}
+            height={240}
+          />
+
+          {/* ------------------ EXPENSES BOX ---------------- */}
+
+          <DetailsCard
+            // styleCustom={{ paddingHorizontal: 0, paddingVertical: 0 }}
+            cardColor={{ color: 'cyan', intensity: 500 }}
+            title='Expenses'
+            titlePosition={{ width: 100, left: 130 }}
+            buttonType='add'
+            buttonColor={{ color: 'green', intensity: 400 }}
+            onPress={() => {}}
+          >
             <FlatList
               nestedScrollEnabled={true}
-              data={gasTanks}
+              data={expenses}
               keyExtractor={(item) => item.id.toString()}
-              renderItem={(
-                { item } // użyj destrukturyzacji, aby uzyskać dostęp do 'item'
-              ) => (
-                <VehicleGasTankDetails
-                  tankDetails={item} // przekaż 'item' do 'tankDetails'
-                  fuelTypes={fuelTypes}
+              renderItem={({ item }) => (
+                <VehicleExpenseDetails
+                  expenseDetails={item}
+                  expenseTypes={expenseTypes}
                 />
               )}
             />
-
-            <Text style={[styles.titleText, styles.gasTanksText]}>
-              Gas tanks
-            </Text>
-            <AddButton
-              onAddPress={() => {
-                setIsGasTankAddModalVisible(true);
-              }}
-            />
-          </View>
-
-          {/* ------------------ EXPENSES BOX ---------------- */}
-          <View style={styles.expensesContainer}>
-            <Text style={[styles.titleText, styles.expensesText]}>
-              Expenses
-            </Text>
-            <AddButton onAddPress={() => {}} />
-          </View>
+          </DetailsCard>
         </View>
       </ScrollView>
     </>
@@ -386,91 +441,41 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  imageContainer: {
-    position: 'relative',
-
-    marginVertical: 16,
-
-    width: 360,
-    height: 240,
-  },
   imagePhoto: {
     width: '100%',
     height: '100%',
-
-    borderColor: colors.red[400],
-    borderWidth: 2,
-    borderRadius: 16,
+    borderRadius: 14,
   },
   twoInfoBox: {
+    // backgroundColor: 'red',
+
     height: 344,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 0,
     margin: 0,
   },
-  gasTanksContainer: {
-    position: 'relative',
 
-    marginTop: 20,
-    marginBottom: 8,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-
-    width: 360,
-    height: 200,
-
-    borderColor: colors.red[400],
-    borderWidth: 2,
-    borderRadius: 16,
-  },
-  titleText: {
-    position: 'absolute',
-
-    backgroundColor: 'white',
-    borderRadius: 8,
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: 'bold',
-    padding: 2,
-    height: 24,
-
-    top: -14,
-  },
-  imageText: {
-    width: 80,
-    left: 140,
-  },
   mileageText: {
     width: 80,
     left: 46,
-  },
-  faultsText: {
-    width: 80,
-    left: 46,
-  },
-  infoText: {
-    width: 50,
-    left: 61,
-  },
-  gasTanksText: {
-    width: 100,
-    left: 130,
   },
   expensesText: {
     width: 100,
     left: 130,
   },
-  expensesContainer: {
-    position: 'relative',
+  // expensesContainer: {
+  //   position: 'relative',
 
-    marginVertical: 8,
+  //   marginVertical: 8,
+  //   paddingHorizontal: 7,
+  //   paddingVertical: 3,
 
-    width: 360,
-    height: 200,
+  //   width: 360,
+  //   height: 200,
 
-    borderColor: colors.cyan[400],
-    borderWidth: 2,
-    borderRadius: 16,
-  },
+  //   borderColor: colors.cyan[500],
+  //   borderWidth: 2,
+  //   borderRadius: 16,
+  // },
 });
