@@ -20,26 +20,33 @@ export default function VehicleGasTankDetails({
   const consumption = (100 * tankDetails.capacity) / traveled;
 
   return (
-    <View style={styles.outerContainer}>
-      <View style={styles.innerContainer}>
-        <Text style={styles.text}>{`${tankDetails.gas_station}`}</Text>
-        <Text style={styles.text}>{`${
-          fuelTypes.find((type) => type.id === tankDetails.fuel_type)?.type_name
-        }`}</Text>
-        <Text style={styles.text}>{`${tankDetails.capacity.toFixed(
-          2
-        )} l`}</Text>
-        <Text style={styles.text}>{`${tankDetails.price_per_liter} PLN`}</Text>
-        <Text style={styles.text}>{`${tankDetails.buy_date}`}</Text>
-      </View>
+    <>
+      <View style={styles.outerContainer}>
+        <View style={styles.innerContainer}>
+          <Text style={styles.text}>{`${tankDetails.gas_station}`}</Text>
+          <Text style={styles.text}>{`${
+            fuelTypes.find((type) => type.id === tankDetails.fuel_type)
+              ?.type_name
+          }`}</Text>
+          <Text style={styles.text}>{`${tankDetails.capacity.toFixed(
+            2
+          )} l`}</Text>
+          <Text
+            style={styles.text}
+          >{`${tankDetails.price_per_liter} PLN`}</Text>
+          <Text style={styles.text}>{`${tankDetails.buy_date}`}</Text>
+        </View>
 
-      <View style={[styles.innerContainer, { justifyContent: 'space-evenly' }]}>
-        <Text style={styles.text}>{`Traveled: ${traveled} km`}</Text>
-        <Text style={styles.text}>{`Consumption: ${consumption.toFixed(
-          2
-        )}/100 km`}</Text>
+        <View
+          style={[styles.innerContainer, { justifyContent: 'space-evenly' }]}
+        >
+          <Text style={styles.text}>{`Traveled: ${traveled} km`}</Text>
+          <Text style={styles.text}>{`Consumption: ${consumption.toFixed(
+            2
+          )}/100 km`}</Text>
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 

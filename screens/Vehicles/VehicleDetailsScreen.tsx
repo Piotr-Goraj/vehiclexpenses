@@ -284,7 +284,7 @@ export default function VehicleDetailsScreen({
               buttonColor={{ color: 'green', intensity: 400 }}
               onPress={() => {}}
             >
-              <Text>Some silly text</Text>
+              <Text> </Text>
             </DetailsCard>
           </View>
 

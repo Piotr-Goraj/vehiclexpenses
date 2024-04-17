@@ -7,7 +7,7 @@ export type ColorIntensity = {
   intensity: 30 | 60 | 80 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 };
 
-export type ButtonType = 'add' | 'edit';
+export type ButtonType = 'add' | 'edit' | 'delete';
 
 // ************** navigators types ************** \\
 
@@ -53,6 +53,17 @@ export type SettingsProps = BottomTabScreenProps<
 >;
 
 // ************** SQLite tables types ************** \\
+
+export const tablesNames = {
+  expense_type: 'expense_type',
+  expenses: 'expenses',
+  faults: 'faults',
+  fuel_type: 'fuel_type',
+  gas_tank: 'gas_tank',
+  mileages: 'mileages',
+  settings: 'settings',
+  vehicles: 'vehicles',
+};
 
 export interface ExpenseTypeTab {
   id: number;

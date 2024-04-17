@@ -1,4 +1,4 @@
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, Pressable, ViewStyle } from 'react-native';
 
 import { AntDesign } from '@expo/vector-icons';
 
@@ -8,12 +8,14 @@ import usePrimaryColors from '../../../hooks/usePrimaryColors';
 import useButtonType from '../../../hooks/useButtonType';
 
 interface ActionButtonProps {
+  style?: ViewStyle;
   colorBtn: ColorIntensity;
   typeButton: ButtonType;
   onPress: () => void;
 }
 
 export default function ActionButton({
+  style,
   colorBtn,
   typeButton,
   onPress,
@@ -26,6 +28,7 @@ export default function ActionButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.editBtn,
+        style,
         {
           borderColor: color[colorBtn.intensity],
         },
