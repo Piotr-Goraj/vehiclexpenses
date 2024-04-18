@@ -47,8 +47,5 @@ Piotr Goraj
 The application is thoughtfully organized into four distinct sections, each serving a specific purpose and seamlessly navigable through the intuitive @react-navigation/native library. The initial landing point is the Vehicles screen, users can view a list of declared vehicles. Clicking on any vehicle item redirects them to the corresponding details screen, where nearly all information is editable. Additionally, users can add new fueling details, anual mileages, or expenses associated with each vehicle.
 
 <p align="center">
-<img src="/_REDME_ASSETS/app_vehicle-list.png" alt="Vehicle details" width="460" height="auto">
-<img src="/_REDME_ASSETS/app_vehicle-details.png" alt="Vehicle details" width="460" height="auto">
-<img src="/_REDME_ASSETS/app_vehicle-info-modal-1.png" alt="Vehicle details" width="460" height="auto">
-<img src="/_REDME_ASSETS/app_vehicle-info-modal-2.png" alt="Vehicle details" width="460" height="auto">
+<img src="/_REDME_ASSETS/app_vehicles.png" alt="Vehicle section">
 </p>
