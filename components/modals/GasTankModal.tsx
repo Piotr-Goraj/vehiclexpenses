@@ -14,6 +14,7 @@ import ModalCard from './ModalCard';
 import PrimaryInput from '../ui/inputs/PrimaryInput';
 import colors from '../../utils/colors';
 import DateInput from '../ui/inputs/DateInput';
+import PrimaryDropdown from '../ui/PrimaryDropdown';
 
 interface FormState {
   selectedVehicle: { id: number; name: string; mileageBefore: number };
@@ -307,7 +308,7 @@ export default function GasTankModal({
                 `INSERT INTO expenses (vehicle_id, name, type, price, date) VALUES (?, ?, ?, ?, ?)`,
                 [
                   vehicle.id,
-                  'Fuel tank',
+                  'Refueling',
                   1, // in expense_tab table it is id for "gas"
                   pricePerLiterValue * capacityValue,
                   buyDateValue,
@@ -388,39 +389,29 @@ export default function GasTankModal({
       <ScrollView style={{ flex: 1 }}>
         <View style={{ width: 320, alignItems: 'center' }}>
           {!vehicle && (
-            <>
-              <Text style={styles.label}>Vehicle</Text>
-              <Dropdown
-                style={[
-                  styles.dropdown,
-                  isDropdownVehicleFocus && { borderColor: colors.blue[400] },
-                ]}
-                data={vehicles}
-                labelField={'label'}
-                valueField='id'
-                placeholder={
-                  !isDropdownVehicleFocus
-                    ? formState.selectedVehicle.name
-                    : '...'
-                }
-                searchPlaceholder='Search...'
-                value={formState.selectedVehicle.id.toString()}
-                onFocus={() => setIsDropdownVehicleFocus(true)}
-                onBlur={() => setIsDropdownVehicleFocus(false)}
-                onChange={(item) => {
-                  dispatchForm({
-                    type: 'SET_VEHICLE',
-                    value: {
-                      id: item.id,
-                      name: item.label,
-                      mileageBefore: item.currentMileage,
-                    },
-                  });
-                  firstTankHandler();
-                  setIsDropdownVehicleFocus(false);
-                }}
-              />
-            </>
+            <PrimaryDropdown
+              title='Vehicle'
+              isDropdownFocus={isDropdownVehicleFocus}
+              data={vehicles}
+              labelField='label'
+              valueField='id'
+              selectedPlaceholder={formState.selectedVehicle.name}
+              value={formState.selectedVehicle.id.toString()}
+              onFocus={() => setIsDropdownVehicleFocus(true)}
+              onBlur={() => () => setIsDropdownVehicleFocus(false)}
+              onChange={(item) => {
+                dispatchForm({
+                  type: 'SET_VEHICLE',
+                  value: {
+                    id: item.id,
+                    name: item.label,
+                    mileageBefore: item.currentMileage,
+                  },
+                });
+                firstTankHandler();
+                setIsDropdownVehicleFocus(false);
+              }}
+            />
           )}
           {isFirstTankData && (
             <Text>WARNING: This is the first refueling of this vehicle!</Text>

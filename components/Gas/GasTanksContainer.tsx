@@ -7,7 +7,6 @@ import VehicleGasTankDetails from '../Vehicles/VehicleGasTankDetails';
 
 import DetailsCard from '../ui/cards/DetailsCard';
 import ActionButton from '../ui/buttons/ActionButton';
-import PrimaryButton from '../ui/buttons/PrimaryButton';
 
 import {
   FuelTypeTab,

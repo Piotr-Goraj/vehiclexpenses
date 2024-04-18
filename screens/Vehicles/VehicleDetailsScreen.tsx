@@ -38,6 +38,7 @@ import VehicleGasTankDetails from '../../components/Vehicles/VehicleGasTankDetai
 import VehicleExpenseDetails from '../../components/Vehicles/VehicleExpenseDetails';
 import GasTanksContainer from '../../components/Gas/GasTanksContainer';
 import DetailsCard from '../../components/ui/cards/DetailsCard';
+import ExpensesContainer from '../../components/Summarise/ExpensesContainer';
 
 export default function VehicleDetailsScreen({
   route,
@@ -162,6 +163,8 @@ export default function VehicleDetailsScreen({
   }
 
   useEffect(() => {
+    console.log('Changed');
+
     db.withTransactionSync(() => {
       getVehiclesById(vehicleId);
       getGasByVehicleId(vehicleId);
@@ -405,28 +408,12 @@ export default function VehicleDetailsScreen({
           />
 
           {/* ------------------ EXPENSES BOX ---------------- */}
-
-          <DetailsCard
-            // styleCustom={{ paddingHorizontal: 0, paddingVertical: 0 }}
-            cardColor={{ color: 'cyan', intensity: 500 }}
-            title='Expenses'
-            titlePosition={{ width: 100, left: 130 }}
-            buttonType='add'
-            buttonColor={{ color: 'green', intensity: 400 }}
-            onPress={() => {}}
-          >
-            <FlatList
-              nestedScrollEnabled={true}
-              data={expenses}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <VehicleExpenseDetails
-                  expenseDetails={item}
-                  expenseTypes={expenseTypes}
-                />
-              )}
-            />
-          </DetailsCard>
+          <ExpensesContainer
+            vehicle={vehicleDetails}
+            expenses={expenses}
+            expenseTypes={expenseTypes}
+            isChanged={setDetailsChanged}
+          />
         </View>
       </ScrollView>
     </>

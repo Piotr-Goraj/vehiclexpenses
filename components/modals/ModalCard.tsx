@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   buttonContainer: {
+    marginTop: 16,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
