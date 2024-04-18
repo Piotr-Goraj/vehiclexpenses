@@ -68,6 +68,7 @@ export default function VehicleDetailsScreen({
     is_sold: 0,
     current_mileage: 0,
   });
+  const [detailsChanged, setDetailsChanged] = useState<boolean>(false);
   const [yearlyMileages, setYearlyMileages] = useState<MileagesTab[]>([]);
   const [traveledMileage, setTraveledMileage] = useState<number>(0);
   const [gasTanks, setGasTanks] = useState<GasTankTab[]>([]);
@@ -175,6 +176,7 @@ export default function VehicleDetailsScreen({
     isInfoModalVisible,
     isGasTankAddModalVisible,
     changeMileageModalVisible,
+    detailsChanged,
   ]);
 
   useEffect(() => {
@@ -393,6 +395,8 @@ export default function VehicleDetailsScreen({
 
           {/* ------------------ GAS TANKS BOX ---------------- */}
           <GasTanksContainer
+            vehicleDetails={vehicleDetails}
+            isChanged={setDetailsChanged}
             gasTanks={gasTanks}
             fuelTypes={fuelTypes}
             onPress={setIsGasTankAddModalVisible}

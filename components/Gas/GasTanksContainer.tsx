@@ -9,7 +9,12 @@ import DetailsCard from '../ui/cards/DetailsCard';
 import ActionButton from '../ui/buttons/ActionButton';
 import PrimaryButton from '../ui/buttons/PrimaryButton';
 
-import { FuelTypeTab, GasTankTab, tablesNames } from '../../utils/types';
+import {
+  FuelTypeTab,
+  GasTankTab,
+  VehiclesTab,
+  tablesNames,
+} from '../../utils/types';
 import ModalCard from '../modals/ModalCard';
 
 interface GasTanksContainerProps {
@@ -17,7 +22,10 @@ interface GasTanksContainerProps {
   fuelTypes: FuelTypeTab[];
   height?: number;
   onPress?: (onPress: boolean) => void;
+
   isDeleteBtn?: boolean;
+  vehicleDetails?: VehiclesTab;
+  isChanged?: (isChanged: boolean) => void;
 }
 
 export default function GasTanksContainer({
@@ -25,7 +33,10 @@ export default function GasTanksContainer({
   fuelTypes,
   height,
   onPress,
+
   isDeleteBtn = true,
+  vehicleDetails,
+  isChanged,
 }: GasTanksContainerProps) {
   const db = useSQLiteContext();
 
@@ -37,16 +48,25 @@ export default function GasTanksContainer({
   }, [gasTanks]);
 
   const deleteHandler = () => {
-    db.runSync(`DELETE FROM ${tablesNames.gas_tank} WHERE id = ?`, [
-      gasTanks[0].id,
-    ]);
+    if (isDeleteBtn && vehicleDetails && isChanged) {
+      db.runSync(`DELETE FROM ${tablesNames.gas_tank} WHERE id = ?`, [
+        gasTanks[0].id,
+      ]);
 
-    console.log('Latest refueling data deleted.');
+      db.runSync(
+        `UPDATE ${tablesNames.vehicles} SET current_mileage = ? WHERE id = ?`,
+        [gasTanks[0].mileage_before, vehicleDetails.id]
+      );
 
-    const gasTanksAfter = db.getAllSync<GasTankTab>(
-      `SELECT * FROM ${tablesNames.gas_tank}`
-    );
-    setGasTanksData(gasTanksAfter);
+      const gasTanksAfter = db.getAllSync<GasTankTab>(
+        `SELECT * FROM ${tablesNames.gas_tank}`
+      );
+
+      setGasTanksData(gasTanksAfter);
+      isChanged(true);
+    } else {
+      console.error('Vehicle details has not been passed.');
+    }
   };
 
   return (
