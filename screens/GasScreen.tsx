@@ -1,15 +1,43 @@
-import { useState } from 'react';
-import { StyleSheet, View, Text, Pressable } from 'react-native';
-import GasTankModal from '../components/modals/GasTankModal';
-import colors from '../utils/colors';
-import GasTanksContainer from '../components/Gas/GasTanksContainer';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
+
+import GasTankModal from '../components/modals/GasTankModal';
+import GasTanksContainer from '../components/Gas/GasTanksContainer';
+
+import { FuelTypeTab, GasTankTab, tablesNames } from '../utils/types';
+import colors from '../utils/colors';
 
 export default function GasScreen() {
   const db = useSQLiteContext();
 
   const [isGasTankAddModalVisible, setIsGasTankAddModalVisible] =
     useState<boolean>(false);
+  const [gasTanksTable, setGasTanksTable] = useState<GasTankTab[]>([]);
+  const [fuelTypes, setFuelTypes] = useState<FuelTypeTab[]>([]);
+
+  const getTanksTable = async () => {
+    const gasData = await db.getAllAsync<GasTankTab>(
+      `SELECT * FROM ${tablesNames.gas_tank} ORDER BY buy_date DESC;`
+    );
+
+    setGasTanksTable(gasData);
+  };
+
+  async function getFuelTypes() {
+    const result = await db.getAllAsync<FuelTypeTab>(
+      `SELECT * FROM ${tablesNames.fuel_type};`
+    );
+
+    setFuelTypes(result);
+  }
+
+  useEffect(() => {
+    db.withTransactionAsync(async () => {
+      getTanksTable();
+      getFuelTypes();
+    });
+  }, []);
 
   return (
     <>
@@ -20,10 +48,11 @@ export default function GasScreen() {
 
       <View style={styles.container}>
         <GasTanksContainer
-          gasTanks={[]}
-          fuelTypes={[]}
+          gasTanks={gasTanksTable}
+          fuelTypes={fuelTypes}
           onPress={setIsGasTankAddModalVisible}
           height={300}
+          isDeleteBtn={false}
         />
       </View>
     </>

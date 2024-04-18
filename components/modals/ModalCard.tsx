@@ -4,6 +4,8 @@ import { StyleSheet, Modal, View } from 'react-native';
 
 import PrimaryButton from '../ui/buttons/PrimaryButton';
 
+import { ColorIntensity } from '../../utils/types';
+
 interface ModalCardProps {
   isModalVisible: boolean;
   onModal: (visible: boolean) => void;
@@ -11,6 +13,7 @@ interface ModalCardProps {
   children?: ReactNode;
 
   isConfirm: boolean;
+  confirmColor?: ColorIntensity;
   onConfirm?: () => void;
   btnTitle?: string;
 }
@@ -21,6 +24,7 @@ export default function ModalCard({
   onModal,
   onConfirm = () => {},
   isConfirm,
+  confirmColor,
   btnTitle = 'Confirm',
 }: ModalCardProps) {
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -53,7 +57,7 @@ export default function ModalCard({
               <PrimaryButton
                 title={btnTitle}
                 onPress={onConfirm}
-                btnColor={{ color: 'green', intensity: 400 }}
+                btnColor={confirmColor || { color: 'green', intensity: 400 }}
               />
             )}
           </View>

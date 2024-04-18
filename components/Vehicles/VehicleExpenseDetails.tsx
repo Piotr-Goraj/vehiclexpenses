@@ -20,7 +20,9 @@ export default function VehicleExpenseDetails({
           expenseTypes.find((type) => type.id === expenseDetails.type)
             ?.type_name
         }`}</Text>
-        <Text style={styles.text}>{`${expenseDetails.price} PLN`}</Text>
+        <Text style={styles.text}>{`${expenseDetails.price.toFixed(
+          2
+        )} PLN`}</Text>
         <Text style={styles.text}>{expenseDetails.date}</Text>
       </View>
     </View>

@@ -1,18 +1,20 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, ViewStyle } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import { FuelTypeTab, GasTankTab } from '../../utils/types';
 import colors from '../../utils/colors';
+import { roundNumber } from '../../utils/roundNumber';
 
 interface VehicleGasTankDetailsProps {
   tankDetails: GasTankTab;
   fuelTypes: FuelTypeTab[];
+  style?: ViewStyle;
 }
 
 export default function VehicleGasTankDetails({
   tankDetails,
   fuelTypes,
+  style,
 }: VehicleGasTankDetailsProps) {
   const db = useSQLiteContext();
 
@@ -21,7 +23,7 @@ export default function VehicleGasTankDetails({
 
   return (
     <>
-      <View style={styles.outerContainer}>
+      <View style={[styles.outerContainer, style]}>
         <View style={styles.innerContainer}>
           <Text style={styles.text}>{`${tankDetails.gas_station}`}</Text>
           <Text style={styles.text}>{`${
@@ -40,7 +42,9 @@ export default function VehicleGasTankDetails({
         <View
           style={[styles.innerContainer, { justifyContent: 'space-evenly' }]}
         >
-          <Text style={styles.text}>{`Traveled: ${traveled} km`}</Text>
+          <Text style={styles.text}>{`Traveled: ${roundNumber(
+            traveled
+          )} km`}</Text>
           <Text style={styles.text}>{`Consumption: ${consumption.toFixed(
             2
           )}/100 km`}</Text>

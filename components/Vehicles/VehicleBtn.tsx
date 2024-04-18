@@ -28,7 +28,7 @@ export default function VehicleBtn({ details, onPress }: VehicleBtnProps) {
         </View>
       )}
       <Text>{details.name}</Text>
-      <Text>{details.current_mileage} km</Text>
+      <Text>{details.current_mileage.toFixed(1)} km</Text>
       {isSold && <Text style={styles.soldText}>SOLD</Text>}
     </Pressable>
   );

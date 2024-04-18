@@ -19,8 +19,9 @@ import {
   MileagesTab,
   VehicleDetailsProps,
   VehiclesTab,
+  tablesNames,
 } from '../../utils/types';
-import colors from '../../utils/colors';
+import { roundNumber } from '../../utils/roundNumber';
 
 import useDateDelta from '../../hooks/useDateDelta';
 
@@ -91,32 +92,32 @@ export default function VehicleDetailsScreen({
 
   const db = useSQLiteContext();
 
-  async function getVehiclesById(id: number) {
-    const result = await db.getAllAsync<VehiclesTab>(
+  function getVehiclesById(id: number) {
+    const result = db.getAllSync<VehiclesTab>(
       `SELECT * FROM vehicles WHERE id = ?;`,
       [id]
     );
     setVehicleDetails(result[0]);
   }
 
-  async function getGasByVehicleId(id: number) {
-    const result = await db.getAllAsync<GasTankTab>(
-      `SELECT * FROM gas_tank WHERE vehicle_id = ?;`,
+  function getGasByVehicleId(id: number) {
+    const result = db.getAllSync<GasTankTab>(
+      `SELECT * FROM ${tablesNames.gas_tank} WHERE vehicle_id = ? ORDER BY buy_date DESC;`,
       [id]
     );
     setGasTanks(result);
   }
 
   const meanConsumption = () => {
-    if (traveledMileage > 0) {
+    if (traveledMileage != 0) {
+      const firstRefuel = gasTanks[gasTanks.length - 1].capacity;
+
       const fullTankCapacity = gasTanks.reduce(
         (accumulator, tank) => accumulator + tank.capacity,
-        0
+        -firstRefuel
       );
 
-      const mean = parseFloat(
-        ((100 * fullTankCapacity) / traveledMileage).toFixed(2)
-      );
+      const mean = roundNumber((100 * fullTankCapacity) / traveledMileage);
 
       setConsumption(mean);
     }
@@ -130,46 +131,43 @@ export default function VehicleDetailsScreen({
     setFullCosts(sumExpense + vehicleDetails.buy_price);
   };
 
-  async function getMeleagesVehicle(id: number) {
-    const result = await db.getAllAsync<MileagesTab>(
+  function getMeleagesVehicle(id: number) {
+    const result = db.getAllSync<MileagesTab>(
       `SELECT * FROM mileages WHERE vehicle_id = ? ORDER BY year DESC;`,
       [id]
     );
     setYearlyMileages(result);
   }
 
-  async function getExpensesVehicle(id: number) {
-    const result = await db.getAllAsync<ExpensesTab>(
+  function getExpensesVehicle(id: number) {
+    const result = db.getAllSync<ExpensesTab>(
       `SELECT * FROM expenses WHERE vehicle_id = ? ORDER BY date DESC;`,
       [id]
     );
     setExpenses(result);
   }
 
-  async function getExpenseTypes() {
-    const result = await db.getAllAsync<FuelTypeTab>(
+  function getExpenseTypes() {
+    const result = db.getAllSync<FuelTypeTab>(
       `SELECT * FROM expense_type;`,
       []
     );
     setExpenseTypes(result);
   }
 
-  async function getFuelTypes() {
-    const result = await db.getAllAsync<FuelTypeTab>(
-      `SELECT * FROM fuel_type;`,
-      []
-    );
+  function getFuelTypes() {
+    const result = db.getAllSync<FuelTypeTab>(`SELECT * FROM fuel_type;`, []);
     setFuelTypes(result);
   }
 
   useEffect(() => {
-    db.withTransactionAsync(async () => {
-      await getVehiclesById(vehicleId);
-      await getGasByVehicleId(vehicleId);
-      await getMeleagesVehicle(vehicleId);
-      await getExpensesVehicle(vehicleId);
-      await getExpenseTypes();
-      await getFuelTypes();
+    db.withTransactionSync(() => {
+      getVehiclesById(vehicleId);
+      getGasByVehicleId(vehicleId);
+      getMeleagesVehicle(vehicleId);
+      getExpensesVehicle(vehicleId);
+      getExpenseTypes();
+      getFuelTypes();
     });
   }, [
     isImageModalVisible,
@@ -181,21 +179,16 @@ export default function VehicleDetailsScreen({
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      let maxMileage = 0;
-      for (const key of yearlyMileages) {
-        if (key.mileage > maxMileage) {
-          maxMileage = key.mileage;
-        }
-      }
-
       setIsSold(vehicleDetails.is_sold === 1 ? true : false);
-      setTraveledMileage(maxMileage - vehicleDetails.current_mileage);
+      setTraveledMileage(
+        vehicleDetails.current_mileage - vehicleDetails.buy_mileage
+      );
       meanConsumption();
       sumExpenses();
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [yearlyMileages, expenses]);
+  }, [yearlyMileages, expenses, traveledMileage]);
 
   useEffect(() => {
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
@@ -223,6 +216,7 @@ export default function VehicleDetailsScreen({
         vehicle={vehicleDetails}
         isModalVisible={isGasTankAddModalVisible}
         onModal={setIsGasTankAddModalVisible}
+        isFirstTank={gasTanks.length === 0 ? true : false}
       />
 
       <ScrollView style={{ flex: 1 }}>
@@ -320,13 +314,13 @@ export default function VehicleDetailsScreen({
               />
 
               <VehicleInfoTxt
-                text={`Price: ${vehicleDetails.buy_price} PLN`}
+                text={`Price: ${roundNumber(vehicleDetails.buy_price)} PLN`}
                 textColor='light'
                 boxColor={{ color: 'magenta', intensity: 600 }}
               />
 
               <VehicleInfoTxt
-                text={`Mileage: ${vehicleDetails.buy_mileage} km`}
+                text={`Mileage: ${roundNumber(vehicleDetails.buy_mileage)} km`}
                 textColor='light'
                 boxColor={{ color: 'magenta', intensity: 600 }}
               />
@@ -356,40 +350,40 @@ export default function VehicleDetailsScreen({
               />
 
               <VehicleInfoTxt
-                text={`Traveled: ${traveledMileage} km`}
+                text={`Traveled: ${roundNumber(traveledMileage)} km`}
                 textColor='light'
                 boxColor={{ color: 'red', intensity: 400 }}
               />
 
               <VehicleInfoTxt
-                text={`Mean consumption: ${consumption} l/100 km`}
+                text={`Mean consumption: ${roundNumber(consumption)} l/100 km`}
                 textColor='light'
                 boxColor={{ color: 'red', intensity: 400 }}
               />
               <VehicleInfoTxt
-                text={`Full cost: ${fullCosts} PLN`}
+                text={`Full cost: ${roundNumber(fullCosts || 0)} PLN`}
                 textColor='light'
                 boxColor={{ color: 'red', intensity: 400 }}
                 customStyle={{ marginBottom: 7 }}
               />
 
               <VehicleInfoTxt
-                text={`${(vehicleDetails.buy_price / differenceInYears).toFixed(
-                  0
+                text={`${Math.ceil(
+                  vehicleDetails.buy_price / differenceInYears
                 )} PLN / year`}
                 textColor='light'
                 boxColor={{ color: 'magenta', intensity: 600 }}
               />
               <VehicleInfoTxt
-                text={`${(
+                text={`${Math.ceil(
                   vehicleDetails.buy_price / differenceInMonths
-                ).toFixed(0)} PLN / month`}
+                )} PLN / month`}
                 textColor='light'
                 boxColor={{ color: 'magenta', intensity: 600 }}
               />
               <VehicleInfoTxt
-                text={`${(vehicleDetails.buy_price / differenceInDays).toFixed(
-                  0
+                text={`${Math.ceil(
+                  vehicleDetails.buy_price / differenceInDays
                 )} PLN / day`}
                 textColor='light'
                 boxColor={{ color: 'magenta', intensity: 600 }}
@@ -403,6 +397,7 @@ export default function VehicleDetailsScreen({
             fuelTypes={fuelTypes}
             onPress={setIsGasTankAddModalVisible}
             height={240}
+            isDeleteBtn={gasTanks.length === 0 ? false : true}
           />
 
           {/* ------------------ EXPENSES BOX ---------------- */}

@@ -3,7 +3,12 @@ import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
-import { FuelTypeTab, VehiclesTab } from '../../utils/types';
+import {
+  FuelTypeTab,
+  GasTankTab,
+  VehiclesTab,
+  tablesNames,
+} from '../../utils/types';
 
 import ModalCard from './ModalCard';
 import PrimaryInput from '../ui/inputs/PrimaryInput';
@@ -118,12 +123,14 @@ const formReducer = (state: FormState, action: FormAction) => {
 
 interface VehicleGasTankAddProps {
   vehicle?: VehiclesTab;
+  isFirstTank?: boolean;
   isModalVisible: boolean;
   onModal: (visible: boolean) => void;
 }
 
 export default function GasTankModal({
   vehicle,
+  isFirstTank = false,
   isModalVisible,
   onModal,
 }: VehicleGasTankAddProps) {
@@ -153,6 +160,7 @@ export default function GasTankModal({
   const [vehicles, setVehicles] = useState<
     { id: number; label: string; currentMileage: number }[]
   >([]);
+  const [isFirstTankData, setIsFirstTankData] = useState<boolean>(isFirstTank);
   const [fuelTypes, setFuelTypes] = useState<FuelTypeTab[]>([]);
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isDropdownVehicleFocus, setIsDropdownVehicleFocus] = useState(false);
@@ -160,6 +168,7 @@ export default function GasTankModal({
 
   useEffect(() => {
     setIsVisible(isModalVisible);
+    setIsFirstTankData(isFirstTank);
 
     if (vehicle) {
       dispatchForm({
@@ -174,6 +183,7 @@ export default function GasTankModal({
 
     return () => {
       dispatchForm({ type: 'RESET_STATE' });
+      setIsFirstTankData(isFirstTank);
     };
   }, [isModalVisible]);
 
@@ -207,6 +217,14 @@ export default function GasTankModal({
   const closeModal = () => {
     setIsVisible(false);
     onModal(false);
+  };
+
+  const firstTankHandler = () => {
+    const tanksTab = db.getAllSync<GasTankTab>(
+      `SELECT * FROM ${tablesNames.gas_tank}`
+    );
+
+    setIsFirstTankData(tanksTab.length === 0 ? true : false);
   };
 
   const saveTank = () => {
@@ -271,7 +289,7 @@ export default function GasTankModal({
                 selectedFuelType.id,
                 pricePerLiterValue,
                 capacityValue,
-                vehicle.current_mileage,
+                isFirstTank ? mileageAfterValue : vehicle.current_mileage,
                 mileageAfterValue,
                 buyDateValue,
               ]
@@ -398,12 +416,15 @@ export default function GasTankModal({
                       mileageBefore: item.currentMileage,
                     },
                   });
+                  firstTankHandler();
                   setIsDropdownVehicleFocus(false);
                 }}
               />
             </>
           )}
-
+          {isFirstTankData && (
+            <Text>WARNING: This is the first refueling of this vehicle!</Text>
+          )}
           <PrimaryInput
             value={formState.gasStationValue}
             isValid={formState.gasStationValid}
