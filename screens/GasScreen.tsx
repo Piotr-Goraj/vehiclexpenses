@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import GasTankModal from '../components/modals/GasTankModal';
 import GasTanksContainer from '../components/Gas/GasTanksContainer';
 
-import { FuelTypeTab, GasTankTab, tablesNames } from '../utils/types';
+import {
+  FuelTypeTab,
+  GasTankTab,
+  VehicleColorsProps,
+  tablesNames,
+} from '../utils/types';
 import colors from '../utils/colors';
 
 export default function GasScreen() {
@@ -16,28 +21,39 @@ export default function GasScreen() {
   const [gasTanksTable, setGasTanksTable] = useState<GasTankTab[]>([]);
   const [fuelTypes, setFuelTypes] = useState<FuelTypeTab[]>([]);
 
-  const getTanksTable = async () => {
-    const gasData = await db.getAllAsync<GasTankTab>(
+  const [vehicleColors, setVehicleColors] = useState<VehicleColorsProps[]>([]);
+
+  const getTanksTable = () => {
+    const gasData = db.getAllSync<GasTankTab>(
       `SELECT * FROM ${tablesNames.gas_tank} ORDER BY buy_date DESC;`
     );
 
     setGasTanksTable(gasData);
   };
 
-  async function getFuelTypes() {
-    const result = await db.getAllAsync<FuelTypeTab>(
+  const getFuelTypes = () => {
+    const result = db.getAllSync<FuelTypeTab>(
       `SELECT * FROM ${tablesNames.fuel_type};`
     );
 
     setFuelTypes(result);
-  }
+  };
+
+  const getVehicleColors = () => {
+    const result = db.getAllSync<VehicleColorsProps>(
+      `SELECT id, color FROM ${tablesNames.vehicles};`
+    );
+
+    setVehicleColors(result);
+  };
 
   useEffect(() => {
-    db.withTransactionAsync(async () => {
+    db.withTransactionSync(() => {
       getTanksTable();
       getFuelTypes();
+      getVehicleColors();
     });
-  }, []);
+  }, [db]);
 
   return (
     <>
@@ -46,15 +62,19 @@ export default function GasScreen() {
         onModal={setIsGasTankAddModalVisible}
       />
 
-      <View style={styles.container}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.container}
+      >
         <GasTanksContainer
           gasTanks={gasTanksTable}
           fuelTypes={fuelTypes}
           onPress={setIsGasTankAddModalVisible}
           height={300}
           isDeleteBtn={false}
+          vehiclesColors={vehicleColors}
         />
-      </View>
+      </ScrollView>
     </>
   );
 }

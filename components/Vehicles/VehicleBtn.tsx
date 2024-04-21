@@ -2,6 +2,7 @@ import { StyleSheet, Pressable, Text, View, Image } from 'react-native';
 
 import colors from '../../utils/colors';
 import { VehiclesTab } from '../../utils/types';
+import { useEffect, useState } from 'react';
 
 interface VehicleBtnProps {
   details: VehiclesTab;
@@ -11,10 +12,17 @@ interface VehicleBtnProps {
 export default function VehicleBtn({ details, onPress }: VehicleBtnProps) {
   const isSold = details.is_sold === 1 ? true : false;
 
+  const [borderColor, setBorderColor] = useState<string>(colors.magenta[600]);
+
+  useEffect(() => {
+    setBorderColor(details.color);
+  }, [details]);
+
   return (
     <Pressable
       style={({ pressed }) => [
         styles.container,
+        details.color ? { borderColor: borderColor } : null,
         pressed && styles.containerPressed,
       ]}
       onPress={onPress}

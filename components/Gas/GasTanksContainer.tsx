@@ -11,6 +11,7 @@ import ActionButton from '../ui/buttons/ActionButton';
 import {
   FuelTypeTab,
   GasTankTab,
+  VehicleColorsProps,
   VehiclesTab,
   tablesNames,
 } from '../../utils/types';
@@ -24,6 +25,7 @@ interface GasTanksContainerProps {
 
   isDeleteBtn?: boolean;
   vehicleDetails?: VehiclesTab;
+  vehiclesColors?: VehicleColorsProps[];
   isChanged?: (isChanged: boolean) => void;
 }
 
@@ -35,6 +37,7 @@ export default function GasTanksContainer({
 
   isDeleteBtn = true,
   vehicleDetails,
+  vehiclesColors,
   isChanged,
 }: GasTanksContainerProps) {
   const db = useSQLiteContext();
@@ -105,6 +108,11 @@ export default function GasTanksContainer({
             <VehicleGasTankDetails
               tankDetails={item}
               fuelTypes={fuelTypes}
+              {...(vehiclesColors && {
+                vehicleColor: vehiclesColors.find(
+                  (color) => color.id === item.vehicle_id
+                )?.color,
+              })}
             />
           )}
         />

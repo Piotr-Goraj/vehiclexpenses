@@ -68,6 +68,7 @@ export default function VehicleDetailsScreen({
     buy_mileage: 1980,
     is_sold: 0,
     current_mileage: 0,
+    color: '',
   });
   const [detailsChanged, setDetailsChanged] = useState<boolean>(false);
   const [yearlyMileages, setYearlyMileages] = useState<MileagesTab[]>([]);
@@ -163,7 +164,7 @@ export default function VehicleDetailsScreen({
   }
 
   useEffect(() => {
-    console.log('Changed');
+    // console.log('Changed');
 
     db.withTransactionSync(() => {
       getVehiclesById(vehicleId);

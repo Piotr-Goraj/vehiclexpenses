@@ -1,7 +1,7 @@
 import { StyleSheet, View, Text, ViewStyle } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
-import { FuelTypeTab, GasTankTab } from '../../utils/types';
+import { FuelTypeTab, GasTankTab, VehicleColorsProps } from '../../utils/types';
 import colors from '../../utils/colors';
 import { roundNumber } from '../../utils/roundNumber';
 
@@ -9,12 +9,14 @@ interface VehicleGasTankDetailsProps {
   tankDetails: GasTankTab;
   fuelTypes: FuelTypeTab[];
   style?: ViewStyle;
+  vehicleColor?: string;
 }
 
 export default function VehicleGasTankDetails({
   tankDetails,
   fuelTypes,
   style,
+  vehicleColor,
 }: VehicleGasTankDetailsProps) {
   const db = useSQLiteContext();
 
@@ -23,7 +25,13 @@ export default function VehicleGasTankDetails({
 
   return (
     <>
-      <View style={[styles.outerContainer, style]}>
+      <View
+        style={[
+          styles.outerContainer,
+          style,
+          vehicleColor ? { borderColor: vehicleColor, borderWidth: 2 } : null,
+        ]}
+      >
         <View style={styles.innerContainer}>
           <Text style={styles.text}>{`${tankDetails.gas_station}`}</Text>
           <Text style={styles.text}>{`${
@@ -63,7 +71,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
 
     backgroundColor: colors.red[400],
-    // borderWidth: 2,
     borderRadius: 16,
   },
   innerContainer: {

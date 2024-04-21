@@ -1,6 +1,11 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, TextStyle, ViewStyle } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import colors from '../../utils/colors';
+
+interface DropdownItem {
+  name: string;
+  value: string;
+}
 
 interface PrimaryDropdownProps {
   title: string;
@@ -8,11 +13,15 @@ interface PrimaryDropdownProps {
   data: any[];
   labelField: string;
   valueField: string;
-  selectedPlaceholder: string;
+  selectedPlaceholder?: string;
   value: string;
   onFocus: (focus: boolean) => void;
   onBlur: (blur: boolean) => void;
   onChange: (item: any) => void;
+  style?: ViewStyle;
+  isLabel?: boolean;
+  renderItem?: (item: DropdownItem) => JSX.Element;
+  maxHeight?: number;
 }
 
 export default function PrimaryDropdown({
@@ -26,25 +35,54 @@ export default function PrimaryDropdown({
   onFocus,
   onBlur,
   onChange,
+  style,
+  isLabel = true,
+  renderItem,
+  maxHeight,
 }: PrimaryDropdownProps) {
   return (
     <>
-      <Text style={styles.label}>{title}</Text>
-      <Dropdown
-        style={[
-          styles.dropdown,
-          isDropdownFocus && { borderColor: colors.blue[400] },
-        ]}
-        data={data}
-        labelField={labelField}
-        valueField={valueField}
-        placeholder={!isDropdownFocus ? selectedPlaceholder : '...'}
-        searchPlaceholder='Search...'
-        value={value}
-        onFocus={() => onFocus}
-        onBlur={() => onBlur}
-        onChange={(item) => onChange(item)}
-      />
+      <Text style={[styles.label, !isLabel && { display: 'none' }]}>
+        {title}
+      </Text>
+      {renderItem ? (
+        <Dropdown
+          style={[
+            styles.dropdown,
+            style,
+            isDropdownFocus && { borderColor: colors.blue[400] },
+          ]}
+          data={data}
+          labelField={labelField}
+          valueField={valueField}
+          placeholder={!isDropdownFocus ? selectedPlaceholder : '...'}
+          searchPlaceholder='Search...'
+          value={value}
+          onFocus={() => onFocus}
+          onBlur={() => onBlur}
+          onChange={(item) => onChange(item)}
+          renderItem={(item) => renderItem(item)}
+          {...(maxHeight && { maxHeight })}
+        />
+      ) : (
+        <Dropdown
+          style={[
+            styles.dropdown,
+            style,
+            isDropdownFocus && { borderColor: colors.blue[400] },
+          ]}
+          data={data}
+          labelField={labelField}
+          valueField={valueField}
+          placeholder={!isDropdownFocus ? selectedPlaceholder : '...'}
+          searchPlaceholder='Search...'
+          value={value}
+          onFocus={() => onFocus}
+          onBlur={() => onBlur}
+          onChange={(item) => onChange(item)}
+          {...(maxHeight && { maxHeight })}
+        />
+      )}
     </>
   );
 }

@@ -129,4 +129,12 @@ export interface VehiclesTab {
   sold_date?: string;
   sold_price?: number;
   current_mileage: number;
+  color: string;
+}
+
+// ************** state types ************** \\
+
+export interface VehicleColorsProps {
+  id: number;
+  color: string;
 }

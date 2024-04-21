@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
+import { useSQLiteContext } from 'expo-sqlite/next';
 
 import { ExpenseTypeTab, ExpensesTab } from '../../utils/types';
 import colors from '../../utils/colors';
@@ -12,8 +14,22 @@ export default function VehicleExpenseDetails({
   expenseDetails,
   expenseTypes,
 }: VehicleExpenseDetailsProps) {
+  const db = useSQLiteContext();
+
+  interface ColorsProps {
+    id: Number;
+    color: string;
+  }
+  const [vehiclesColors, setVehiclesColors] = useState<ColorsProps[]>([]);
+
+  useEffect(() => {
+    const colors = db.getAllSync<ColorsProps>(`SELECT id, color FROM vehicles`);
+    setVehiclesColors(colors);
+    console.log(colors);
+  }, []);
+
   return (
-    <View style={styles.outerContainer}>
+    <View style={[styles.outerContainer, {}]}>
       <View style={styles.innerContainer}>
         <Text style={styles.text}>{expenseDetails.name}</Text>
         <Text style={styles.text}>{`${
@@ -38,7 +54,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
 
     backgroundColor: colors.cyan[500],
-    // borderWidth: 2,
     borderRadius: 16,
   },
   innerContainer: {
@@ -49,5 +64,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: colors.fontLight,
+    width: '25%',
+    textAlign: 'center',
   },
 });

@@ -6,6 +6,9 @@ import { useSQLiteContext } from 'expo-sqlite/next';
 
 import PrimaryButton from '../ui/buttons/PrimaryButton';
 import ModalCard from './ModalCard';
+import PrimaryDropdown from '../ui/PrimaryDropdown';
+import colors from '../../utils/colors';
+import { tablesNames } from '../../utils/types';
 
 interface ImageModalProps {
   isModalVisible: boolean;
@@ -23,6 +26,27 @@ export default function VehicleImageModal({
     null
   );
   const [isImageSaved, setIsImageSaved] = useState<boolean>(true);
+  const [isDropdownFocus, setIsDropdownFocus] = useState<boolean>(false);
+  const [colorSelected, setColorSelected] = useState<string>('');
+
+  const generateColorArray = (color: any, levels: number) => {
+    const colorArray = [];
+    for (let i = 100; i <= levels * 100; i += 100) {
+      colorArray.push({ value: color[i] });
+    }
+    return colorArray;
+  };
+
+  const colorsDropdown = [
+    ...generateColorArray(colors.red, 7),
+    ...generateColorArray(colors.green, 7),
+    ...generateColorArray(colors.blue, 7),
+    ...generateColorArray(colors.yellow, 7),
+    ...generateColorArray(colors.cyan, 7),
+    ...generateColorArray(colors.magenta, 7),
+    ...generateColorArray(colors.yellow, 7),
+    ...generateColorArray(colors.grey, 7),
+  ];
 
   const db = useSQLiteContext();
 
@@ -72,6 +96,14 @@ export default function VehicleImageModal({
     }
   };
 
+  const changeColorHandler = () => {
+    db.runSync(`UPDATE ${tablesNames.vehicles} SET color = ? WHERE id = ?`, [
+      colorSelected,
+      vehicleId,
+    ]);
+    closeModal();
+  };
+
   return (
     <ModalCard
       onModal={onModal}
@@ -92,6 +124,35 @@ export default function VehicleImageModal({
         title='Pick an image'
         onPress={pickImage}
       />
+
+      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+        <PrimaryDropdown
+          style={{ width: '50%' }}
+          isLabel={false}
+          title='Color'
+          data={colorsDropdown}
+          isDropdownFocus={isDropdownFocus}
+          labelField='value'
+          valueField='value'
+          value={colorSelected}
+          onFocus={() => setIsDropdownFocus(true)}
+          onBlur={() => setIsDropdownFocus(false)}
+          onChange={(item) => {
+            setColorSelected(item.value);
+            setIsDropdownFocus(false);
+          }}
+          maxHeight={170}
+          renderItem={(item) => (
+            <Text style={[styles.renderStyleColorText, { color: item.value }]}>
+              {item.value}
+            </Text>
+          )}
+        />
+        <PrimaryButton
+          title='Change color'
+          onPress={changeColorHandler}
+        />
+      </View>
     </ModalCard>
   );
 }
@@ -135,5 +196,12 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 240,
+  },
+  renderStyleColorText: {
+    textAlign: 'center',
+    verticalAlign: 'middle',
+    fontWeight: 'bold',
+    fontSize: 16,
+    height: 30,
   },
 });

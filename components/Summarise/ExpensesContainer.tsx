@@ -15,7 +15,8 @@ interface ExpensesContainerProps {
   expenses: ExpensesTab[];
   expenseTypes: ExpenseTypeTab[];
 
-  isChanged?: (isChanged: boolean) => void;
+  isChanged: (isChanged: boolean) => void;
+  height?: number;
 }
 
 export default function ExpensesContainer({
@@ -23,6 +24,7 @@ export default function ExpensesContainer({
   expenses,
   expenseTypes,
   isChanged,
+  height,
 }: ExpensesContainerProps) {
   const [modalIsVisible, setModalIsVisible] = useState<boolean>(false);
   const [modalChangeIsVisible, setModalChangeIsVisible] =
@@ -36,22 +38,27 @@ export default function ExpensesContainer({
     date: '',
   });
 
+  useEffect(() => {
+    isChanged(modalIsVisible || modalChangeIsVisible);
+  }, [modalIsVisible, modalChangeIsVisible]);
+
   return (
     <>
       <AddExpenseModal
         vehicle={vehicle}
         onModal={setModalIsVisible}
         isVisible={modalIsVisible}
-        isChanged={isChanged}
       />
 
       <ChangeExpenseModal
         expenseDetails={expenseDetails}
         onModal={setModalChangeIsVisible}
         isVisible={modalChangeIsVisible}
+        expenseTypes={expenseTypes}
       />
 
       <DetailsCard
+        styleCustom={height ? { height: height } : {}}
         cardColor={{ color: 'cyan', intensity: 500 }}
         title='Expenses'
         titlePosition={{ width: 100, left: 130 }}
