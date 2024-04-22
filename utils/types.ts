@@ -139,3 +139,11 @@ export interface VehicleColorsProps {
   color: string;
   name: string;
 }
+
+export interface LegendProps extends VehicleColorsProps {}
+
+export interface PieChartDataProps {
+  name: string;
+  value: number;
+  color: string;
+}

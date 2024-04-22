@@ -1,23 +1,23 @@
 import { StyleSheet, View, Text } from 'react-native';
 
-import { VehicleColorsProps } from '../utils/types';
+import { LegendProps } from '../utils/types';
 
-interface LegendProps {
-  vehiclesColors: VehicleColorsProps[];
+interface LegendPropsVal {
+  legendData: LegendProps[];
 }
 
-export default function Legend({ vehiclesColors }: LegendProps) {
+export default function Legend({ legendData }: LegendPropsVal) {
   return (
     <View style={styles.container}>
-      {vehiclesColors.map((color) => (
+      {legendData.map((item) => (
         <View
-          key={color.id}
+          key={item.id}
           style={styles.colorWrapper}
         >
           <View
-            style={[styles.legendColor, { backgroundColor: color.color }]}
+            style={[styles.legendColor, { backgroundColor: item.color }]}
           ></View>
-          <Text>{color.name}</Text>
+          <Text>{item.name}</Text>
         </View>
       ))}
     </View>
@@ -30,6 +30,8 @@ const styles = StyleSheet.create({
     width: '90%',
     justifyContent: 'space-around',
     flexWrap: 'wrap',
+
+    marginVertical: 8,
   },
   colorWrapper: {
     flexDirection: 'row',

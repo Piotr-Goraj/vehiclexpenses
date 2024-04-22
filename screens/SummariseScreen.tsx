@@ -5,9 +5,12 @@ import { useSQLiteContext } from 'expo-sqlite/next';
 import {
   ExpenseTypeTab,
   ExpensesTab,
+  PieChartDataProps,
   VehicleColorsProps,
   tablesNames,
 } from '../utils/types';
+import colors from '../utils/colors';
+import { getRandomColor } from '../utils/randomColor';
 
 import ExpensesContainer from '../components/Summarise/ExpensesContainer';
 import PieChartCard from '../components/PieChartCard';
@@ -48,6 +51,35 @@ export default function SummariseScreen() {
     getVehicleColors();
   }, [db]);
 
+  const pieChartData: PieChartDataProps[] = [];
+  expensesTypes.forEach((expenseType) => {
+    const expensesOfType = expenses.filter(
+      (expense) => expense.type === expenseType.id
+    );
+    const totalExpenseOfType = expensesOfType.reduce(
+      (acc, expense) => acc + expense.price,
+      0
+    );
+    pieChartData.push({
+      name: expenseType.type_name,
+      value: totalExpenseOfType,
+      color:
+        expenseType.type_name === 'gas'
+          ? colors.red[300]
+          : expenseType.type_name === 'mechanic'
+          ? colors.blue[200]
+          : expenseType.type_name === 'exploitation'
+          ? colors.magenta[400]
+          : expenseType.type_name === 'visuals'
+          ? colors.cyan[200]
+          : expenseType.type_name === 'incomes'
+          ? colors.green[400]
+          : expenseType.type_name === 'fees'
+          ? colors.yellow[400]
+          : getRandomColor(),
+    });
+  });
+
   return (
     <ScrollView
       style={{ flex: 1 }}
@@ -61,7 +93,12 @@ export default function SummariseScreen() {
         vehiclesColors={vehicleColors}
       />
 
-      <PieChartCard cardColor={{ color: 'cyan', intensity: 500 }} />
+      <PieChartCard
+        title='Expenses types'
+        titlePosition={{ width: 140, left: 110 }}
+        data={pieChartData}
+        cardColor={{ color: 'cyan', intensity: 500 }}
+      />
     </ScrollView>
   );
 }

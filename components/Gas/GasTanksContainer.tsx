@@ -126,7 +126,7 @@ export default function GasTanksContainer({
         />
       </DetailsCard>
 
-      {vehiclesColors && <Legend vehiclesColors={vehiclesColors} />}
+      {vehiclesColors && <Legend legendData={vehiclesColors} />}
     </>
   );
 }

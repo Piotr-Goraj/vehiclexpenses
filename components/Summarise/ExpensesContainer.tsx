@@ -102,7 +102,7 @@ export default function ExpensesContainer({
         />
       </DetailsCard>
 
-      {vehiclesColors && <Legend vehiclesColors={vehiclesColors} />}
+      {vehiclesColors && <Legend legendData={vehiclesColors} />}
     </>
   );
 }
