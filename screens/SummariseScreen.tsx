@@ -25,6 +25,7 @@ export default function SummariseScreen() {
   const [expenses, setExpenses] = useState<ExpensesTab[]>([]);
   const [expensesTypes, setExpensesTypes] = useState<ExpenseTypeTab[]>([]);
   const [vehicleColors, setVehicleColors] = useState<VehicleColorsProps[]>([]);
+  const [expensesChanged, setExpensesChanged] = useState<boolean>(false);
 
   const getExpenses = () => {
     const expenses = db.getAllSync<ExpensesTab>(
@@ -49,7 +50,7 @@ export default function SummariseScreen() {
   useEffect(() => {
     getExpenses();
     getVehicleColors();
-  }, [db]);
+  }, [db, expensesChanged]);
 
   const pieChartData: PieChartDataProps[] = [];
   expensesTypes.forEach((expenseType) => {
@@ -88,7 +89,7 @@ export default function SummariseScreen() {
       <ExpensesContainer
         expenses={expenses}
         expenseTypes={expensesTypes}
-        isChanged={() => {}}
+        isChanged={setExpensesChanged}
         height={300}
         vehiclesColors={vehicleColors}
       />
