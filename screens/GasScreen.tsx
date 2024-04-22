@@ -20,7 +20,6 @@ export default function GasScreen() {
     useState<boolean>(false);
   const [gasTanksTable, setGasTanksTable] = useState<GasTankTab[]>([]);
   const [fuelTypes, setFuelTypes] = useState<FuelTypeTab[]>([]);
-
   const [vehicleColors, setVehicleColors] = useState<VehicleColorsProps[]>([]);
 
   const getTanksTable = () => {
@@ -41,7 +40,7 @@ export default function GasScreen() {
 
   const getVehicleColors = () => {
     const result = db.getAllSync<VehicleColorsProps>(
-      `SELECT id, color FROM ${tablesNames.vehicles};`
+      `SELECT id, color, name FROM ${tablesNames.vehicles};`
     );
 
     setVehicleColors(result);

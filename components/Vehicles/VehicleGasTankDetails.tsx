@@ -25,13 +25,7 @@ export default function VehicleGasTankDetails({
 
   return (
     <>
-      <View
-        style={[
-          styles.outerContainer,
-          style,
-          vehicleColor ? { borderColor: vehicleColor, borderWidth: 2 } : null,
-        ]}
-      >
+      <View style={[styles.outerContainer, style]}>
         <View style={styles.innerContainer}>
           <Text style={styles.text}>{`${tankDetails.gas_station}`}</Text>
           <Text style={styles.text}>{`${
@@ -57,6 +51,13 @@ export default function VehicleGasTankDetails({
             2
           )}/100 km`}</Text>
         </View>
+
+        <View
+          style={[
+            styles.color,
+            vehicleColor ? { backgroundColor: vehicleColor } : null,
+          ]}
+        />
       </View>
     </>
   );
@@ -64,6 +65,8 @@ export default function VehicleGasTankDetails({
 
 const styles = StyleSheet.create({
   outerContainer: {
+    position: 'relative',
+
     width: '100%',
     marginVertical: 2,
 
@@ -81,5 +84,14 @@ const styles = StyleSheet.create({
   },
   text: {
     color: colors.fontLight,
+  },
+  color: {
+    position: 'absolute',
+    bottom: -2,
+    left: -0,
+
+    width: 20,
+    height: 20,
+    borderRadius: 10,
   },
 });

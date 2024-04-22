@@ -12,17 +12,16 @@ interface VehicleBtnProps {
 export default function VehicleBtn({ details, onPress }: VehicleBtnProps) {
   const isSold = details.is_sold === 1 ? true : false;
 
-  const [borderColor, setBorderColor] = useState<string>(colors.magenta[600]);
+  const [vehicleColor, setVehicleColor] = useState<string>(colors.magenta[600]);
 
   useEffect(() => {
-    setBorderColor(details.color);
+    setVehicleColor(details.color);
   }, [details]);
 
   return (
     <Pressable
       style={({ pressed }) => [
         styles.container,
-        details.color ? { borderColor: borderColor } : null,
         pressed && styles.containerPressed,
       ]}
       onPress={onPress}
@@ -38,6 +37,14 @@ export default function VehicleBtn({ details, onPress }: VehicleBtnProps) {
       <Text>{details.name}</Text>
       <Text>{details.current_mileage.toFixed(1)} km</Text>
       {isSold && <Text style={styles.soldText}>SOLD</Text>}
+      {details.color && (
+        <View
+          style={[
+            styles.color,
+            details.color ? { backgroundColor: vehicleColor } : null,
+          ]}
+        />
+      )}
     </Pressable>
   );
 }
@@ -85,5 +92,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
 
     color: colors.yellow[300],
+  },
+  color: {
+    position: 'absolute',
+    bottom: -12,
+    left: -12,
+
+    width: 36,
+    height: 36,
+    borderRadius: 18,
   },
 });

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, Text } from 'react-native';
+import { StyleSheet, FlatList, Text, View } from 'react-native';
 
 import { useSQLiteContext } from 'expo-sqlite/next';
 
@@ -16,6 +16,7 @@ import {
   tablesNames,
 } from '../../utils/types';
 import ModalCard from '../modals/ModalCard';
+import Legend from '../Legend';
 
 interface GasTanksContainerProps {
   gasTanks: GasTankTab[];
@@ -124,6 +125,8 @@ export default function GasTanksContainer({
           onPress={() => setIsDeleteModal(true)}
         />
       </DetailsCard>
+
+      {vehiclesColors && <Legend vehiclesColors={vehiclesColors} />}
     </>
   );
 }

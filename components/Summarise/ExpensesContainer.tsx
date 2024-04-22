@@ -5,9 +5,15 @@ import AddExpenseModal from '../modals/AddExpenseModal';
 
 import DetailsCard from '../ui/cards/DetailsCard';
 
-import { ExpenseTypeTab, ExpensesTab, VehiclesTab } from '../../utils/types';
+import {
+  ExpenseTypeTab,
+  ExpensesTab,
+  VehicleColorsProps,
+  VehiclesTab,
+} from '../../utils/types';
 import { useEffect, useState } from 'react';
 import ChangeExpenseModal from '../modals/ChangeExpenseModal';
+import Legend from '../Legend';
 
 interface ExpensesContainerProps {
   vehicle?: VehiclesTab;
@@ -17,6 +23,8 @@ interface ExpensesContainerProps {
 
   isChanged: (isChanged: boolean) => void;
   height?: number;
+
+  vehiclesColors?: VehicleColorsProps[];
 }
 
 export default function ExpensesContainer({
@@ -25,6 +33,7 @@ export default function ExpensesContainer({
   expenseTypes,
   isChanged,
   height,
+  vehiclesColors,
 }: ExpensesContainerProps) {
   const [modalIsVisible, setModalIsVisible] = useState<boolean>(false);
   const [modalChangeIsVisible, setModalChangeIsVisible] =
@@ -82,11 +91,18 @@ export default function ExpensesContainer({
               <VehicleExpenseDetails
                 expenseDetails={item}
                 expenseTypes={expenseTypes}
+                {...(vehiclesColors && {
+                  vehicleColor: vehiclesColors.find(
+                    (color) => color.id === item.vehicle_id
+                  )?.color,
+                })}
               />
             </Pressable>
           )}
         />
       </DetailsCard>
+
+      {vehiclesColors && <Legend vehiclesColors={vehiclesColors} />}
     </>
   );
 }

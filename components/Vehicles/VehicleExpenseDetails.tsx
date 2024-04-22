@@ -8,11 +8,13 @@ import colors from '../../utils/colors';
 interface VehicleExpenseDetailsProps {
   expenseDetails: ExpensesTab;
   expenseTypes: ExpenseTypeTab[];
+  vehicleColor?: string;
 }
 
 export default function VehicleExpenseDetails({
   expenseDetails,
   expenseTypes,
+  vehicleColor,
 }: VehicleExpenseDetailsProps) {
   const db = useSQLiteContext();
 
@@ -25,11 +27,10 @@ export default function VehicleExpenseDetails({
   useEffect(() => {
     const colors = db.getAllSync<ColorsProps>(`SELECT id, color FROM vehicles`);
     setVehiclesColors(colors);
-    console.log(colors);
   }, []);
 
   return (
-    <View style={[styles.outerContainer, {}]}>
+    <View style={[styles.outerContainer]}>
       <View style={styles.innerContainer}>
         <Text style={styles.text}>{expenseDetails.name}</Text>
         <Text style={styles.text}>{`${
@@ -41,6 +42,13 @@ export default function VehicleExpenseDetails({
         )} PLN`}</Text>
         <Text style={styles.text}>{expenseDetails.date}</Text>
       </View>
+
+      <View
+        style={[
+          styles.color,
+          vehicleColor ? { backgroundColor: vehicleColor } : null,
+        ]}
+      />
     </View>
   );
 }
@@ -66,5 +74,14 @@ const styles = StyleSheet.create({
     color: colors.fontLight,
     width: '25%',
     textAlign: 'center',
+  },
+  color: {
+    position: 'absolute',
+    bottom: -2,
+    left: -0,
+
+    width: 16,
+    height: 16,
+    borderRadius: 8,
   },
 });

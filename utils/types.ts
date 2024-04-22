@@ -137,4 +137,5 @@ export interface VehiclesTab {
 export interface VehicleColorsProps {
   id: number;
   color: string;
+  name: string;
 }

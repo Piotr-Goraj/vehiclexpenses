@@ -3,13 +3,19 @@ import { StyleSheet, ScrollView, Text } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import ExpensesContainer from '../components/Summarise/ExpensesContainer';
-import { ExpenseTypeTab, ExpensesTab, tablesNames } from '../utils/types';
+import {
+  ExpenseTypeTab,
+  ExpensesTab,
+  VehicleColorsProps,
+  tablesNames,
+} from '../utils/types';
 
 export default function SummariseScreen() {
   const db = useSQLiteContext();
 
   const [expenses, setExpenses] = useState<ExpensesTab[]>([]);
   const [expensesTypes, setExpensesTypes] = useState<ExpenseTypeTab[]>([]);
+  const [vehicleColors, setVehicleColors] = useState<VehicleColorsProps[]>([]);
 
   const getExpenses = () => {
     const expenses = db.getAllSync<ExpensesTab>(
@@ -23,9 +29,18 @@ export default function SummariseScreen() {
     setExpensesTypes(expensesTypes);
   };
 
+  const getVehicleColors = () => {
+    const result = db.getAllSync<VehicleColorsProps>(
+      `SELECT id, color, name FROM ${tablesNames.vehicles};`
+    );
+
+    setVehicleColors(result);
+  };
+
   useEffect(() => {
     getExpenses();
-  }, []);
+    getVehicleColors();
+  }, [db]);
 
   return (
     <ScrollView
@@ -37,6 +52,7 @@ export default function SummariseScreen() {
         expenseTypes={expensesTypes}
         isChanged={() => {}}
         height={300}
+        vehiclesColors={vehicleColors}
       />
     </ScrollView>
   );
