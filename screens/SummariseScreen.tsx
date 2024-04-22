@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, Text } from 'react-native';
+import { StyleSheet, ScrollView, LogBox } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
-import ExpensesContainer from '../components/Summarise/ExpensesContainer';
 import {
   ExpenseTypeTab,
   ExpensesTab,
@@ -10,7 +9,14 @@ import {
   tablesNames,
 } from '../utils/types';
 
+import ExpensesContainer from '../components/Summarise/ExpensesContainer';
+import PieChartCard from '../components/PieChartCard';
+
 export default function SummariseScreen() {
+  useEffect(() => {
+    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+  }, []);
+
   const db = useSQLiteContext();
 
   const [expenses, setExpenses] = useState<ExpensesTab[]>([]);
@@ -54,6 +60,8 @@ export default function SummariseScreen() {
         height={300}
         vehiclesColors={vehicleColors}
       />
+
+      <PieChartCard cardColor={{ color: 'cyan', intensity: 500 }} />
     </ScrollView>
   );
 }

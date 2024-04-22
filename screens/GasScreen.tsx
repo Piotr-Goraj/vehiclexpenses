@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView, LogBox } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import GasTankModal from '../components/modals/GasTankModal';
@@ -14,6 +14,10 @@ import {
 import colors from '../utils/colors';
 
 export default function GasScreen() {
+  useEffect(() => {
+    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+  }, []);
+
   const db = useSQLiteContext();
 
   const [isGasTankAddModalVisible, setIsGasTankAddModalVisible] =

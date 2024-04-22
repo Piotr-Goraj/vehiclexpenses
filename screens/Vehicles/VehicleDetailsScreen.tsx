@@ -5,7 +5,6 @@ import {
   View,
   Text,
   Image,
-  FlatList,
   LogBox,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -25,17 +24,12 @@ import { roundNumber } from '../../utils/roundNumber';
 
 import useDateDelta from '../../hooks/useDateDelta';
 
-import VehiclesInfoBox from '../../components/Vehicles/VehiclesInfoBox';
 import VehicleInfoTxt from '../../components/Vehicles/VehicleInfoTxt';
-import EditButton from '../../components/ui/buttons/EditButton';
-import AddButton from '../../components/ui/buttons/AddButton';
 import VehicleImageModal from '../../components/modals/VehicleImageModal';
 import VehicleInfoModal from '../../components/modals/VehicleInfoModal';
 import VehicleMileageModal from '../../components/modals/VehicleMileageModal';
 import GasTankModal from '../../components/modals/GasTankModal';
 import VehicleMileageTxt from '../../components/Vehicles/VehicleMileageTxt';
-import VehicleGasTankDetails from '../../components/Vehicles/VehicleGasTankDetails';
-import VehicleExpenseDetails from '../../components/Vehicles/VehicleExpenseDetails';
 import GasTanksContainer from '../../components/Gas/GasTanksContainer';
 import DetailsCard from '../../components/ui/cards/DetailsCard';
 import ExpensesContainer from '../../components/Summarise/ExpensesContainer';

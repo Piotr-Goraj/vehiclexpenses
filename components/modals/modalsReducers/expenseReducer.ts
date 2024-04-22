@@ -43,7 +43,7 @@ export const expenseReducer = (state: FormState, action: FormAction) => {
       return {
         ...state,
         priceValue: action.value,
-        priceValid: action.value > 0,
+        priceValid: action.value != 0,
       };
     case 'SET_DATE':
       return {
@@ -60,7 +60,7 @@ export const expenseReducer = (state: FormState, action: FormAction) => {
 
         expenseType: { id: -1, name: '' },
 
-        priceValue: -1,
+        priceValue: 0,
         priceValid: null,
 
         dateValue: '',

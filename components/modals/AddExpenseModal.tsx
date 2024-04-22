@@ -32,7 +32,7 @@ export default function AddExpenseModal({
 
     expenseType: { id: -1, name: '' },
 
-    priceValue: -1,
+    priceValue: 0,
     priceValid: null,
 
     dateValue: '',
