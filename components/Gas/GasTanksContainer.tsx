@@ -17,6 +17,7 @@ import {
 } from '../../utils/types';
 import ModalCard from '../modals/ModalCard';
 import Legend from '../Charts/Legend';
+import GasTankEditModal from '../modals/GasTankEditModal';
 
 interface GasTanksContainerProps {
   gasTanks: GasTankTab[];
@@ -44,7 +45,11 @@ export default function GasTanksContainer({
   const db = useSQLiteContext();
 
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
+  const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [gasTanksData, setGasTanksData] = useState<GasTankTab[]>([]);
+  const [chosenToEdit, setChosenToEdit] = useState<
+    Pick<GasTankTab, 'id' | 'buy_date' | 'gas_station'>
+  >({ id: -1, buy_date: '', gas_station: '' });
 
   useEffect(() => {
     setGasTanksData(gasTanks);
@@ -52,14 +57,14 @@ export default function GasTanksContainer({
 
   const deleteHandler = () => {
     if (isDeleteBtn && vehicleDetails && isChanged) {
-      db.runSync(`DELETE FROM ${tablesNames.gas_tank} WHERE id = ?`, [
-        gasTanks[0].id,
-      ]);
-
       db.runSync(
         `UPDATE ${tablesNames.vehicles} SET current_mileage = ? WHERE id = ?`,
         [gasTanks[0].mileage_before, vehicleDetails.id]
       );
+
+      db.runSync(`DELETE FROM ${tablesNames.gas_tank} WHERE id = ?`, [
+        gasTanks[0].id,
+      ]);
 
       const gasTanksAfter = db.getAllSync<GasTankTab>(
         `SELECT * FROM ${tablesNames.gas_tank}`
@@ -85,12 +90,22 @@ export default function GasTanksContainer({
         <Text style={styles.deleteText}>
           You want to delete the last refueling?
         </Text>
-        <VehicleGasTankDetails
-          tankDetails={gasTanksData[0]}
-          fuelTypes={fuelTypes}
-          style={{ marginVertical: 24 }}
-        />
+        {gasTanksData.length !== 0 && (
+          <VehicleGasTankDetails
+            onModal={() => {}}
+            tankDetails={gasTanksData[0]}
+            fuelTypes={fuelTypes}
+            style={{ marginVertical: 24 }}
+          />
+        )}
       </ModalCard>
+
+      <GasTankEditModal
+        tankDetails={chosenToEdit}
+        isModalVisible={isEditModal}
+        onModal={setIsEditModal}
+        isChanged={isChanged}
+      />
 
       <DetailsCard
         title='Gas tanks'
@@ -107,6 +122,10 @@ export default function GasTanksContainer({
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <VehicleGasTankDetails
+              onModal={(onModal) => {
+                setIsEditModal(onModal);
+                setChosenToEdit(item);
+              }}
               tankDetails={item}
               fuelTypes={fuelTypes}
               {...(vehiclesColors && {

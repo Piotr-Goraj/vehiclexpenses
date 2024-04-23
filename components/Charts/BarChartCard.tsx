@@ -31,6 +31,7 @@ export default function BarChartCard({
           width={300}
           height={180}
           data={data}
+          initialSpacing={30}
           barWidth={10}
           spacing={8}
           roundedTop

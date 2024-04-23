@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, LogBox } from 'react-native';
+import { StyleSheet, ScrollView, LogBox, Text } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import GasTankModal from '../components/modals/GasTankModal';
@@ -27,6 +27,7 @@ export default function GasScreen() {
   const [gasTanksTable, setGasTanksTable] = useState<GasTankTab[]>([]);
   const [fuelTypes, setFuelTypes] = useState<FuelTypeTab[]>([]);
   const [vehicleColors, setVehicleColors] = useState<VehicleColorsProps[]>([]);
+  const [detailsChanged, setDetailsChanged] = useState<boolean>(() => false);
 
   const getTanksTable = () => {
     const gasData = db.getAllSync<GasTankTab>(
@@ -58,7 +59,9 @@ export default function GasScreen() {
       getFuelTypes();
       getVehicleColors();
     });
-  }, [db]);
+
+    console.log('Changed');
+  }, [db, detailsChanged]);
 
   const barData: BarDataProps[] = [];
 
@@ -105,6 +108,9 @@ export default function GasScreen() {
           marginTop: 2,
         },
         labelWidth: monthlyGasTank[month].length * 18,
+        topLabelComponent: () => (
+          <Text style={styles.topLabelComponent}>{price.toFixed(2)}</Text>
+        ),
         spacing: 50,
         frontColor:
           vehicleColors.find((color) => color.id === vehicle_id)?.color ||
@@ -121,6 +127,11 @@ export default function GasScreen() {
             marginTop: 2,
           },
           labelWidth: monthlyGasTank[month].length * 25,
+          topLabelComponent: () => (
+            <Text style={styles.topLabelComponent}>
+              {monthlyGasTank[month][0].price.toFixed(2)}
+            </Text>
+          ),
           frontColor:
             vehicleColors.find(
               (color) => color.id === monthlyGasTank[month][0].vehicle_id
@@ -133,6 +144,11 @@ export default function GasScreen() {
               (color) => color.id === monthlyGasTank[month][1].vehicle_id
             )?.color || 'black',
           spacing: 50,
+          topLabelComponent: () => (
+            <Text style={styles.topLabelComponent}>
+              {monthlyGasTank[month][1].price.toFixed(2)}
+            </Text>
+          ),
         }
       );
     } else {
@@ -146,6 +162,11 @@ export default function GasScreen() {
           marginTop: 2,
         },
         labelWidth: monthlyGasTank[month].length * 18,
+        topLabelComponent: () => (
+          <Text style={styles.topLabelComponent}>
+            {monthlyGasTank[month][0].price.toFixed(2)}
+          </Text>
+        ),
         frontColor:
           vehicleColors.find(
             (color) => color.id === monthlyGasTank[month][0].vehicle_id
@@ -160,6 +181,11 @@ export default function GasScreen() {
             vehicleColors.find(
               (color) => color.id === monthlyGasTank[month][i].vehicle_id
             )?.color || 'black',
+          topLabelComponent: () => (
+            <Text style={styles.topLabelComponent}>
+              {monthlyGasTank[month][i].price.toFixed(2)}
+            </Text>
+          ),
         });
       }
 
@@ -173,6 +199,13 @@ export default function GasScreen() {
               monthlyGasTank[month][monthlyGasTank[month].length - 1].vehicle_id
           )?.color || 'black',
         spacing: 50,
+        topLabelComponent: () => (
+          <Text style={styles.topLabelComponent}>
+            {monthlyGasTank[month][
+              monthlyGasTank[month].length - 1
+            ].price.toFixed(2)}
+          </Text>
+        ),
       });
     }
   }
@@ -182,6 +215,7 @@ export default function GasScreen() {
       <GasTankModal
         isModalVisible={isGasTankAddModalVisible}
         onModal={setIsGasTankAddModalVisible}
+        isChanged={setDetailsChanged}
       />
 
       <ScrollView
@@ -195,6 +229,7 @@ export default function GasScreen() {
           height={300}
           isDeleteBtn={false}
           vehiclesColors={vehicleColors}
+          isChanged={setDetailsChanged}
         />
 
         <BarChartCard
@@ -227,5 +262,13 @@ const styles = StyleSheet.create({
     borderColor: colors.red[500],
     borderWidth: 2,
     borderRadius: 16,
+  },
+  topLabelComponent: {
+    color: colors.grey[500],
+    fontSize: 12,
+    marginBottom: 2,
+    width: 60,
+    height: 14,
+    textAlign: 'center',
   },
 });

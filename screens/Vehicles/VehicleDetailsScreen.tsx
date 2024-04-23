@@ -107,12 +107,16 @@ export default function VehicleDetailsScreen({
 
   const meanConsumption = () => {
     if (traveledMileage != 0) {
-      const firstRefuel = gasTanks[gasTanks.length - 1].capacity;
+      const firstRefuel =
+        gasTanks.length !== 0 ? gasTanks[gasTanks.length - 1].capacity : 0;
 
-      const fullTankCapacity = gasTanks.reduce(
-        (accumulator, tank) => accumulator + tank.capacity,
-        -firstRefuel
-      );
+      const fullTankCapacity =
+        gasTanks.length !== 0
+          ? gasTanks.reduce(
+              (accumulator, tank) => accumulator + tank.capacity,
+              -firstRefuel
+            )
+          : 0;
 
       const mean = roundNumber((100 * fullTankCapacity) / traveledMileage);
 

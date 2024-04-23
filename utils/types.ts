@@ -1,3 +1,4 @@
+import * as React from 'react';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { TextStyle } from 'react-native';
@@ -156,4 +157,5 @@ export interface BarDataProps {
   spacing?: number;
   labelWidth?: number;
   labelTextStyle?: TextStyle;
+  topLabelComponent?: () => React.JSX.Element;
 }

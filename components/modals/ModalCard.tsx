@@ -6,7 +6,7 @@ import PrimaryButton from '../ui/buttons/PrimaryButton';
 
 import { ColorIntensity } from '../../utils/types';
 
-interface ModalCardProps {
+export interface ModalCardProps {
   isModalVisible: boolean;
   onModal: (visible: boolean) => void;
 

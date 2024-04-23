@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, LogBox } from 'react-native';
+import { StyleSheet, ScrollView, LogBox, Text } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import {
@@ -123,11 +123,14 @@ export default function SummariseScreen() {
         value: price,
         label: month,
         labelTextStyle: {
-          color: colors.grey[400],
+          color: colors.grey[500],
           transform: [{ rotate: '30deg' }],
           marginTop: 2,
         },
         labelWidth: monthlyExpenses[month].length * 18,
+        topLabelComponent: () => (
+          <Text style={styles.topLabelComponent}>{price.toFixed(2)}</Text>
+        ),
         spacing: 50,
         frontColor:
           vehicleColors.find((color) => color.id === vehicle_id)?.color ||
@@ -139,11 +142,16 @@ export default function SummariseScreen() {
           value: monthlyExpenses[month][0].price,
           label: month,
           labelTextStyle: {
-            color: colors.grey[400],
+            color: colors.grey[500],
             transform: [{ rotate: '30deg' }],
             marginTop: 2,
           },
           labelWidth: monthlyExpenses[month].length * 25,
+          topLabelComponent: () => (
+            <Text style={styles.topLabelComponent}>
+              {monthlyExpenses[month][0].price.toFixed(2)}
+            </Text>
+          ),
           frontColor:
             vehicleColors.find(
               (color) => color.id === monthlyExpenses[month][0].vehicle_id
@@ -156,6 +164,11 @@ export default function SummariseScreen() {
               (color) => color.id === monthlyExpenses[month][1].vehicle_id
             )?.color || 'black',
           spacing: 50,
+          topLabelComponent: () => (
+            <Text style={styles.topLabelComponent}>
+              {monthlyExpenses[month][1].price.toFixed(2)}
+            </Text>
+          ),
         }
       );
     } else {
@@ -164,11 +177,16 @@ export default function SummariseScreen() {
         value: monthlyExpenses[month][0].price,
         label: month,
         labelTextStyle: {
-          color: colors.grey[400],
+          color: colors.grey[500],
           transform: [{ rotate: '30deg' }],
           marginTop: 2,
         },
         labelWidth: monthlyExpenses[month].length * 18,
+        topLabelComponent: () => (
+          <Text style={styles.topLabelComponent}>
+            {monthlyExpenses[month][0].price.toFixed(2)}
+          </Text>
+        ),
         frontColor:
           vehicleColors.find(
             (color) => color.id === monthlyExpenses[month][0].vehicle_id
@@ -183,6 +201,11 @@ export default function SummariseScreen() {
             vehicleColors.find(
               (color) => color.id === monthlyExpenses[month][i].vehicle_id
             )?.color || 'black',
+          topLabelComponent: () => (
+            <Text style={styles.topLabelComponent}>
+              {monthlyExpenses[month][i].price.toFixed(2)}
+            </Text>
+          ),
         });
       }
 
@@ -197,6 +220,13 @@ export default function SummariseScreen() {
                 .vehicle_id
           )?.color || 'black',
         spacing: 50,
+        topLabelComponent: () => (
+          <Text style={styles.topLabelComponent}>
+            {monthlyExpenses[month][
+              monthlyExpenses[month].length - 1
+            ].price.toFixed(2)}
+          </Text>
+        ),
       });
     }
   }
@@ -235,5 +265,13 @@ export default function SummariseScreen() {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
+  },
+  topLabelComponent: {
+    color: colors.grey[500],
+    fontSize: 12,
+    marginBottom: 2,
+    width: 60,
+    height: 14,
+    textAlign: 'center',
   },
 });

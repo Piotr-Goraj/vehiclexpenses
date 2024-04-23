@@ -1,11 +1,12 @@
-import { StyleSheet, View, Text, ViewStyle } from 'react-native';
+import { StyleSheet, View, Text, ViewStyle, Pressable } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite/next';
 
 import { FuelTypeTab, GasTankTab, VehicleColorsProps } from '../../utils/types';
 import colors from '../../utils/colors';
 import { roundNumber } from '../../utils/roundNumber';
+import { ModalCardProps } from '../modals/ModalCard';
 
-interface VehicleGasTankDetailsProps {
+interface VehicleGasTankDetailsProps extends Pick<ModalCardProps, 'onModal'> {
   tankDetails: GasTankTab;
   fuelTypes: FuelTypeTab[];
   style?: ViewStyle;
@@ -17,6 +18,7 @@ export default function VehicleGasTankDetails({
   fuelTypes,
   style,
   vehicleColor,
+  onModal,
 }: VehicleGasTankDetailsProps) {
   const db = useSQLiteContext();
 
@@ -25,7 +27,10 @@ export default function VehicleGasTankDetails({
 
   return (
     <>
-      <View style={[styles.outerContainer, style]}>
+      <Pressable
+        style={[styles.outerContainer, style]}
+        onPress={() => onModal(true)}
+      >
         <View style={styles.innerContainer}>
           <Text style={styles.text}>{`${tankDetails.gas_station}`}</Text>
           <Text style={styles.text}>{`${
@@ -58,7 +63,7 @@ export default function VehicleGasTankDetails({
             vehicleColor ? { backgroundColor: vehicleColor } : null,
           ]}
         />
-      </View>
+      </Pressable>
     </>
   );
 }
