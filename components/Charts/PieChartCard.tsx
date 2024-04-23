@@ -1,20 +1,17 @@
-import {
-  StyleSheet,
-  View,
-  Text,
-  Dimensions,
-  TextStyle,
-  Pressable,
-} from 'react-native';
+import { StyleSheet, View, Text, TextStyle, Pressable } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { AbstractChartConfig } from 'react-native-chart-kit/dist/AbstractChart';
 
-import { ColorIntensity, LegendProps, PieChartDataProps } from '../utils/types';
-import usePrimaryColors from '../hooks/usePrimaryColors';
+import {
+  ColorIntensity,
+  LegendProps,
+  PieChartDataProps,
+} from '../../utils/types';
+import usePrimaryColors from '../../hooks/usePrimaryColors';
 import Legend from './Legend';
-import DetailsCard from './ui/cards/DetailsCard';
+import DetailsCard from '../ui/cards/DetailsCard';
 import { useState } from 'react';
-import colors from '../utils/colors';
+import colors from '../../utils/colors';
 
 interface PieChartCardProps {
   title: string;
@@ -77,8 +74,11 @@ export default function PieChartCard({
 
         {isValuesShown && (
           <View style={styles.valuesContainer}>
-            {data.map((data) => (
-              <View style={styles.valueWrapper}>
+            {data.map((data, index) => (
+              <View
+                key={index}
+                style={styles.valueWrapper}
+              >
                 <View
                   style={[styles.valueDot, { backgroundColor: data.color }]}
                 />
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     height: '102%',
 
     backgroundColor: '#0000006a',
-    borderRadius: 16,
+    borderRadius: 14,
   },
   valueWrapper: {
     flexDirection: 'row',

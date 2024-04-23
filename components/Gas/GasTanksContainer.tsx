@@ -16,7 +16,7 @@ import {
   tablesNames,
 } from '../../utils/types';
 import ModalCard from '../modals/ModalCard';
-import Legend from '../Legend';
+import Legend from '../Charts/Legend';
 
 interface GasTanksContainerProps {
   gasTanks: GasTankTab[];

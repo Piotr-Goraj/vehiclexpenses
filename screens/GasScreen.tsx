@@ -6,12 +6,14 @@ import GasTankModal from '../components/modals/GasTankModal';
 import GasTanksContainer from '../components/Gas/GasTanksContainer';
 
 import {
+  BarDataProps,
   FuelTypeTab,
   GasTankTab,
   VehicleColorsProps,
   tablesNames,
 } from '../utils/types';
 import colors from '../utils/colors';
+import BarChartCard from '../components/Charts/BarChartCard';
 
 export default function GasScreen() {
   useEffect(() => {
@@ -58,6 +60,123 @@ export default function GasScreen() {
     });
   }, [db]);
 
+  const barData: BarDataProps[] = [];
+
+  const monthlyGasTank: {
+    [month: string]: { price: number; vehicle_id: number }[];
+  } = {};
+
+  gasTanksTable.forEach((gasTank) => {
+    const [year, month] = gasTank.buy_date.split('-').slice(0, 2);
+    const dateKey = `${year}-${month}`;
+
+    if (!monthlyGasTank[dateKey]) {
+      monthlyGasTank[dateKey] = [];
+    }
+
+    // Check if there is already an entry for the same vehicle in a given month
+    const existingExpenseIndex = monthlyGasTank[dateKey].findIndex(
+      (item) => item.vehicle_id === gasTank.vehicle_id
+    );
+
+    if (existingExpenseIndex !== -1) {
+      // If exists, update the price value
+      monthlyGasTank[dateKey][existingExpenseIndex].price +=
+        gasTank.capacity * gasTank.price_per_liter;
+    } else {
+      // If it does not exist, add a new entry
+      monthlyGasTank[dateKey].push({
+        price: gasTank.capacity * gasTank.price_per_liter,
+        vehicle_id: gasTank.vehicle_id,
+      });
+    }
+  });
+
+  for (const month in monthlyGasTank) {
+    const [{ price, vehicle_id }] = monthlyGasTank[month];
+
+    if (monthlyGasTank[month].length === 1) {
+      barData.push({
+        value: price,
+        label: month,
+        labelTextStyle: {
+          color: colors.grey[400],
+          transform: [{ rotate: '30deg' }],
+          marginTop: 2,
+        },
+        labelWidth: monthlyGasTank[month].length * 18,
+        spacing: 50,
+        frontColor:
+          vehicleColors.find((color) => color.id === vehicle_id)?.color ||
+          'black',
+      });
+    } else if (monthlyGasTank[month].length === 2) {
+      barData.push(
+        {
+          value: monthlyGasTank[month][0].price,
+          label: month,
+          labelTextStyle: {
+            color: colors.grey[400],
+            transform: [{ rotate: '30deg' }],
+            marginTop: 2,
+          },
+          labelWidth: monthlyGasTank[month].length * 25,
+          frontColor:
+            vehicleColors.find(
+              (color) => color.id === monthlyGasTank[month][0].vehicle_id
+            )?.color || 'black',
+        },
+        {
+          value: monthlyGasTank[month][1].price,
+          frontColor:
+            vehicleColors.find(
+              (color) => color.id === monthlyGasTank[month][1].vehicle_id
+            )?.color || 'black',
+          spacing: 50,
+        }
+      );
+    } else {
+      // Dodawanie pierwszego obiektu
+      barData.push({
+        value: monthlyGasTank[month][0].price,
+        label: month,
+        labelTextStyle: {
+          color: colors.grey[400],
+          transform: [{ rotate: '30deg' }],
+          marginTop: 2,
+        },
+        labelWidth: monthlyGasTank[month].length * 18,
+        frontColor:
+          vehicleColors.find(
+            (color) => color.id === monthlyGasTank[month][0].vehicle_id
+          )?.color || 'black',
+      });
+
+      // Dodawanie obiektów pomiędzy pierwszym a ostatnim
+      for (let i = 1; i < monthlyGasTank[month].length - 1; i++) {
+        barData.push({
+          value: monthlyGasTank[month][i].price,
+          frontColor:
+            vehicleColors.find(
+              (color) => color.id === monthlyGasTank[month][i].vehicle_id
+            )?.color || 'black',
+        });
+      }
+
+      // Dodawanie ostatniego obiektu
+      barData.push({
+        value: monthlyGasTank[month][monthlyGasTank[month].length - 1].price,
+        frontColor:
+          vehicleColors.find(
+            (color) =>
+              color.id ===
+              monthlyGasTank[month][monthlyGasTank[month].length - 1].vehicle_id
+          )?.color || 'black',
+        spacing: 50,
+      });
+    }
+  }
+
   return (
     <>
       <GasTankModal
@@ -76,6 +195,14 @@ export default function GasScreen() {
           height={300}
           isDeleteBtn={false}
           vehiclesColors={vehicleColors}
+        />
+
+        <BarChartCard
+          cardColor={{ color: 'red', intensity: 400 }}
+          title='Monthly refueling'
+          titlePosition={{ width: 140, left: 110 }}
+          data={barData}
+          legendData={vehicleColors}
         />
       </ScrollView>
     </>

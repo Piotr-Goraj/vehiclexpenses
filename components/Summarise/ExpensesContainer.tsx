@@ -13,7 +13,7 @@ import {
 } from '../../utils/types';
 import { useEffect, useState } from 'react';
 import ChangeExpenseModal from '../modals/ChangeExpenseModal';
-import Legend from '../Legend';
+import Legend from '../Charts/Legend';
 
 interface ExpensesContainerProps {
   vehicle?: VehiclesTab;

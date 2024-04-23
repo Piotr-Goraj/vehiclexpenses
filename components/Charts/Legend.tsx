@@ -1,12 +1,13 @@
 import { StyleSheet, View, Text } from 'react-native';
 
-import { LegendProps } from '../utils/types';
+import { LegendProps } from '../../utils/types';
 
 interface LegendPropsVal {
   legendData: LegendProps[];
+  resize?: number;
 }
 
-export default function Legend({ legendData }: LegendPropsVal) {
+export default function Legend({ legendData, resize }: LegendPropsVal) {
   return (
     <View style={styles.container}>
       {legendData.map((item) => (
@@ -15,9 +16,18 @@ export default function Legend({ legendData }: LegendPropsVal) {
           style={styles.colorWrapper}
         >
           <View
-            style={[styles.legendColor, { backgroundColor: item.color }]}
+            style={[
+              styles.legendColor,
+              {
+                backgroundColor: item.color,
+                width: resize ? 20 * resize : 20,
+                height: resize ? 20 * resize : 20,
+              },
+            ]}
           ></View>
-          <Text>{item.name}</Text>
+          <Text style={{ fontSize: resize ? 14 * resize : 14 }}>
+            {item.name}
+          </Text>
         </View>
       ))}
     </View>
@@ -38,8 +48,6 @@ const styles = StyleSheet.create({
   },
   legendColor: {
     marginHorizontal: 4,
-    width: 20,
-    height: 20,
     borderRadius: 10,
   },
 });

@@ -1,5 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { TextStyle } from 'react-native';
 
 // ************** UI types ************** \\
 export type ColorIntensity = {
@@ -146,4 +147,13 @@ export interface PieChartDataProps {
   name: string;
   value: number;
   color: string;
+}
+
+export interface BarDataProps {
+  value: number;
+  frontColor: string;
+  label?: string;
+  spacing?: number;
+  labelWidth?: number;
+  labelTextStyle?: TextStyle;
 }
