@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, Pressable } from 'react-native';
+import { StyleSheet, Text, Pressable, ViewStyle } from 'react-native';
 
 import usePrimaryColors from '../../../hooks/usePrimaryColors';
 
@@ -9,12 +9,14 @@ interface PrimaryButtonProps {
   title: string;
   onPress: () => void;
   btnColor?: ColorIntensity;
+  style?: ViewStyle;
 }
 
 export default function PrimaryButton({
   title,
   onPress,
   btnColor = { color: 'blue', intensity: 400 },
+  style,
 }: PrimaryButtonProps) {
   const color = usePrimaryColors(btnColor.color);
   const [isPressed, setIsPressed] = useState<boolean>(false);
@@ -26,6 +28,7 @@ export default function PrimaryButton({
       onPressOut={() => setIsPressed(false)}
       style={({ pressed }) => [
         styles.button,
+        style,
         {
           borderColor: color[btnColor.intensity],
         },
