@@ -4,6 +4,7 @@ import { FaultsTab, tablesNames } from '../../utils/types';
 import VehicleInfoTxt from './VehicleInfoTxt';
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { useEffect, useState } from 'react';
+import FaultModal from '../modals/FaultModal';
 
 interface FaultBox {
   details: FaultsTab;
@@ -13,6 +14,7 @@ interface FaultBox {
 export default function FaultBox({ details, isChanged }: FaultBox) {
   const db = useSQLiteContext();
 
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isRepaired, setIsRepaired] = useState<0 | 1>();
 
   useEffect(() => {
@@ -21,10 +23,18 @@ export default function FaultBox({ details, isChanged }: FaultBox) {
 
   const repairedChengeHandler = () => {
     // db.runSync(`UPDATE ${tablesNames.faults} SET is_repaired = ? WHERE id = ?`, [])
+    setIsModalVisible(true);
   };
 
   return (
     <>
+      <FaultModal
+        isModalVisible={isModalVisible}
+        onModal={setIsModalVisible}
+        vehicleId={details.vehicle_id}
+        faultEdit={(details.fault_title, details.is_repaired, details.id)}
+      />
+
       <Pressable onPress={repairedChengeHandler}>
         <VehicleInfoTxt
           text={`${details.fault_title}\n\nRepaired: ${

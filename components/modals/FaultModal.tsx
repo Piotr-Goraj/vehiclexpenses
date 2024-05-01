@@ -4,12 +4,13 @@ import { StyleSheet, View, Text } from 'react-native';
 import ModalCard from './ModalCard';
 import { useSQLiteContext } from 'expo-sqlite/next';
 import PrimaryInput from '../ui/inputs/PrimaryInput';
-import { tablesNames } from '../../utils/types';
+import { FaultsTab, tablesNames } from '../../utils/types';
 
 interface FaultModalProps {
   vehicleId: number;
   isModalVisible: boolean;
   onModal: (visible: boolean) => void;
+  faultEdit: Omit<FaultsTab, 'vehicle_id'>;
 }
 
 export default function FaultModal({
