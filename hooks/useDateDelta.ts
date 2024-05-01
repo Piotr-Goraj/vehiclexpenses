@@ -1,5 +1,5 @@
 export default function useDateDelta(date: string) {
-  const [day, month, year] = date.split('-').map(Number);
+  const [year, month, day] = date.split('-').map(Number);
 
   const givenDate = new Date(year, month - 1, day);
   const currentDate = new Date();
