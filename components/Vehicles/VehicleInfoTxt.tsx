@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, ViewStyle } from 'react-native';
+import { StyleSheet, View, Text, ViewStyle, TextStyle } from 'react-native';
 
 import usePrimaryColors from '../../hooks/usePrimaryColors';
 
@@ -10,6 +10,7 @@ interface VehiclesInfoTxtProps {
   textColor?: 'light' | 'dark';
   boxColor?: ColorIntensity;
   customStyle?: ViewStyle;
+  customTxtStyle?: TextStyle;
 }
 
 export default function VehicleInfoTxt({
@@ -17,6 +18,7 @@ export default function VehicleInfoTxt({
   textColor = 'dark',
   boxColor = { color: 'blue', intensity: 100 },
   customStyle,
+  customTxtStyle,
 }: VehiclesInfoTxtProps) {
   const color = usePrimaryColors(boxColor.color);
   const fontColor = textColor === 'dark' ? colors.fontDark : colors.fontLight;
@@ -29,7 +31,9 @@ export default function VehicleInfoTxt({
         customStyle,
       ]}
     >
-      <Text style={{ color: fontColor, textAlign: 'center' }}>{text}</Text>
+      <Text style={[{ color: fontColor, textAlign: 'center' }, customTxtStyle]}>
+        {text}
+      </Text>
     </View>
   );
 }

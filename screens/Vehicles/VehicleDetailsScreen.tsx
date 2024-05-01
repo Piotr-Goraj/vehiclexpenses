@@ -13,6 +13,7 @@ import { useSQLiteContext } from 'expo-sqlite/next';
 import {
   ExpenseTypeTab,
   ExpensesTab,
+  FaultsTab,
   FuelTypeTab,
   GasTankTab,
   MileagesTab,
@@ -33,6 +34,8 @@ import VehicleMileageTxt from '../../components/Vehicles/VehicleMileageTxt';
 import GasTanksContainer from '../../components/Gas/GasTanksContainer';
 import DetailsCard from '../../components/ui/cards/DetailsCard';
 import ExpensesContainer from '../../components/Summarise/ExpensesContainer';
+import FaultBox from '../../components/Vehicles/FaultBox';
+import FaultModal from '../../components/modals/FaultModal';
 
 export default function VehicleDetailsScreen({
   route,
@@ -49,6 +52,8 @@ export default function VehicleDetailsScreen({
     useState<boolean>(false);
   const [isInfoModalVisible, setIsInfoModalVisible] = useState<boolean>(false);
   const [isGasTankAddModalVisible, setIsGasTankAddModalVisible] =
+    useState<boolean>(false);
+  const [isFaultModalVisible, setIsFaultModalVisible] =
     useState<boolean>(false);
 
   const [vehicleDetails, setVehicleDetails] = useState<VehiclesTab>({
@@ -74,6 +79,7 @@ export default function VehicleDetailsScreen({
   const [isSold, setIsSold] = useState<boolean>(false);
   const [consumption, setConsumption] = useState<number>(0.0);
   const [fullCosts, setFullCosts] = useState<number>();
+  const [faults, setFaults] = useState<FaultsTab[]>([]);
 
   const [differenceInDays, differenceInMonths, differenceInYears] =
     useDateDelta(vehicleDetails.buy_date);
@@ -161,6 +167,14 @@ export default function VehicleDetailsScreen({
     setFuelTypes(result);
   }
 
+  function getFaults(id: number) {
+    const result = db.getAllSync<FaultsTab>(
+      `SELECT * FROM ${tablesNames.faults} WHERE vehicle_id = ?;`,
+      [id]
+    );
+    setFaults(result);
+  }
+
   useEffect(() => {
     // console.log('Changed');
 
@@ -169,6 +183,7 @@ export default function VehicleDetailsScreen({
       getGasByVehicleId(vehicleId);
       getMeleagesVehicle(vehicleId);
       getExpensesVehicle(vehicleId);
+      getFaults(vehicleId);
       getExpenseTypes();
       getFuelTypes();
     });
@@ -178,6 +193,7 @@ export default function VehicleDetailsScreen({
     isInfoModalVisible,
     isGasTankAddModalVisible,
     changeMileageModalVisible,
+    isFaultModalVisible,
     detailsChanged,
   ]);
 
@@ -221,6 +237,11 @@ export default function VehicleDetailsScreen({
         isModalVisible={isGasTankAddModalVisible}
         onModal={setIsGasTankAddModalVisible}
         isFirstTank={gasTanks.length === 0 ? true : false}
+      />
+      <FaultModal
+        vehicleId={vehicleDetails.id}
+        isModalVisible={isFaultModalVisible}
+        onModal={setIsFaultModalVisible}
       />
 
       <ScrollView style={{ flex: 1 }}>
@@ -280,9 +301,20 @@ export default function VehicleDetailsScreen({
               titlePosition={{ width: 80, left: 46 }}
               buttonType='add'
               buttonColor={{ color: 'green', intensity: 400 }}
-              onPress={() => {}}
+              onPress={() => setIsFaultModalVisible(true)}
             >
-              <Text> </Text>
+              <ScrollView
+                nestedScrollEnabled={true}
+                style={{ flex: 1 }}
+              >
+                {faults.map((fault) => (
+                  <FaultBox
+                    key={fault.id}
+                    details={fault}
+                    isChanged={setDetailsChanged}
+                  />
+                ))}
+              </ScrollView>
             </DetailsCard>
           </View>
 
